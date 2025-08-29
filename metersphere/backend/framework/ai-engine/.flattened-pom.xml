@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.metersphere</groupId>
+    <artifactId>framework</artifactId>
+    <version>3.x</version>
+  </parent>
+  <artifactId>metersphere-ai-engine</artifactId>
+  <version>3.x</version>
+  <name>metersphere-ai-engine</name>
+  <description>ai-engine</description>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>io.metersphere</groupId>
+      <artifactId>metersphere-sdk</artifactId>
+      <version>${revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-client-chat</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-openai</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-zhipuai</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-tika-document-reader</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-chat-memory-repository-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ansj</groupId>
+      <artifactId>ansj_seg</artifactId>
+      <version>${ansj_seg.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-all</artifactId>
+      <version>${flex-mark.version}</version>
+    </dependency>
+  </dependencies>
+</project>

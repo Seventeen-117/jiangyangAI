@@ -158,6 +158,14 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<!-- Align Spring Security with Spring Boot 3.2.x (uses jakarta.servlet) -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-bom</artifactId>
+				<version>6.2.4</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- Spring Cloud Dependencies BOM -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
