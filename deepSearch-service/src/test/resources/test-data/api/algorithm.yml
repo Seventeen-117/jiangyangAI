@@ -1,0 +1,320 @@
+# 算法控制器API测试数据
+description: "算法控制器API测试用例"
+baseUrl: "/api/algorithm"
+testCases:
+  - id: "self-normalized-large-deviation-success"
+    description: "自正则化大偏差理论计算成功"
+    endpoint: "/self-normalized-large-deviation"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-snld-001"
+        applicationType: "GENE_SCREENING"
+        description: "基因筛选应用"
+        sampleData: [1.2, 2.3, 1.8, 3.1, 2.7, 1.9, 2.5, 3.0, 1.6, 2.8]
+        confidenceLevel: 0.95
+        parameters:
+          threshold: 2.5
+          iterations: 1000
+          method: "bootstrap"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "probability"
+        - "confidenceInterval"
+        - "threshold"
+        - "sampleStatistics"
+        
+  - id: "monte-carlo-calculation-success"
+    description: "蒙特卡洛方法计算成功"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-mc-001"
+        applicationType: "OPTION_PRICING"
+        description: "期权定价计算"
+        simulationCount: 100000
+        parameters:
+          underlyingPrice: 100.0
+          strikePrice: 105.0
+          timeToExpiry: 0.25
+          riskFreeRate: 0.05
+          volatility: 0.2
+          optionType: "CALL"
+        randomSeed: 12345
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "result"
+        - "convergenceMetrics"
+        - "simulationCount"
+        - "executionTime"
+        
+  - id: "wilson-score-calculation-success"
+    description: "威尔逊置信区间排序计算成功"
+    endpoint: "/wilson-score"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-ws-001"
+        applicationType: "PRODUCT_RANKING"
+        description: "电商产品排名"
+        ratingDataList:
+          - itemId: "product-001"
+            positiveCount: 85
+            totalCount: 100
+            itemName: "智能手机A"
+          - itemId: "product-002"
+            positiveCount: 42
+            totalCount: 50
+            itemName: "智能手机B"
+          - itemId: "product-003"
+            positiveCount: 95
+            totalCount: 120
+            itemName: "智能手机C"
+        confidenceLevel: 0.95
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "rankedItems"
+        - "confidenceLevel"
+        - "totalItems"
+        
+  - id: "bayesian-cumulative-probit-success"
+    description: "贝叶斯累积概率模型计算成功"
+    endpoint: "/bayesian-cumulative-probit"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-bcp-001"
+        applicationType: "USER_REPUTATION"
+        description: "社区用户信誉评估"
+        observationData:
+          - category: "EXCELLENT"
+            count: 25
+          - category: "GOOD"
+            count: 40
+          - category: "AVERAGE"
+            count: 20
+          - category: "POOR"
+            count: 10
+          - category: "TERRIBLE"
+            count: 5
+        priorParameters:
+          alpha: 1.0
+          beta: 1.0
+        iterations: 10000
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "posteriorDistribution"
+        - "cumulativeProbabilities"
+        - "credibleIntervals"
+        - "convergenceStatus"
+        
+  - id: "monte-carlo-pi-calculation"
+    description: "蒙特卡洛圆周率计算"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-mc-pi-001"
+        applicationType: "PI_CALCULATION"
+        description: "圆周率计算"
+        simulationCount: 1000000
+        parameters:
+          calculationType: "PI_ESTIMATION"
+          precision: 6
+        randomSeed: 54321
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "result"
+        - "convergenceMetrics"
+        - "actualValue"
+        - "estimatedValue"
+        
+  - id: "particle-physics-simulation"
+    description: "粒子物理模拟"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-mc-physics-001"
+        applicationType: "PARTICLE_PHYSICS"
+        description: "粒子碰撞模拟"
+        simulationCount: 50000
+        parameters:
+          particleType: "ELECTRON"
+          energy: 1000.0
+          targetMaterial: "SILICON"
+          beamAngle: 45.0
+          detectorThreshold: 0.1
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "result"
+        - "scatteringEvents"
+        - "energyDistribution"
+        
+  - id: "sports-ranking-calculation"
+    description: "体育比赛排名计算"
+    endpoint: "/wilson-score"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-ws-sports-001"
+        applicationType: "SPORTS_RANKING"
+        description: "足球队排名"
+        ratingDataList:
+          - itemId: "team-001"
+            positiveCount: 18
+            totalCount: 25
+            itemName: "皇家马德里"
+          - itemId: "team-002"
+            positiveCount: 16
+            totalCount: 22
+            itemName: "巴塞罗那"
+          - itemId: "team-003"
+            positiveCount: 20
+            totalCount: 28
+            itemName: "曼城"
+        confidenceLevel: 0.99
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "rankedItems"
+        - "confidenceLevel"
+        
+  - id: "algorithm-health-check"
+    description: "算法服务健康检查"
+    endpoint: "/health"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "service"
+        - "availableAlgorithms"
+        - "timestamp"
+      bodyMatches:
+        status: "UP"
+        service: "algorithm-service"
+        
+  - id: "algorithm-service-info"
+    description: "算法服务信息"
+    endpoint: "/info"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "serviceName"
+        - "description"
+        - "version"
+        - "theoreticalAlgorithms"
+        - "practicalAlgorithms"
+        - "applicationScenarios"
+      bodyMatches:
+        serviceName: "algorithm-service"
+        description: "理论算法与实用算法计算服务"
+        version: "1.0.0"
+        
+  - id: "invalid-algorithm-request"
+    description: "无效算法请求参数"
+    endpoint: "/self-normalized-large-deviation"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: ""
+        applicationType: ""
+        sampleData: []
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "error"
+        
+  - id: "large-sample-analysis"
+    description: "大样本数据分析"
+    endpoint: "/self-normalized-large-deviation"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-snld-large-001"
+        applicationType: "FINANCIAL_RISK"
+        description: "金融风险大样本分析"
+        sampleData: [生成1000个随机数的数组]
+        confidenceLevel: 0.999
+        parameters:
+          threshold: 3.0
+          iterations: 10000
+          method: "analytical"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "probability"
+        - "confidenceInterval"
+        
+  - id: "high-precision-monte-carlo"
+    description: "高精度蒙特卡洛计算"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-mc-precision-001"
+        applicationType: "HIGH_PRECISION_CALCULATION"
+        description: "高精度数值计算"
+        simulationCount: 10000000
+        parameters:
+          precision: 12
+          convergenceCriteria: 1e-8
+          parallelThreads: 8
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "result"
+        - "precision"
+        - "convergenceStatus"

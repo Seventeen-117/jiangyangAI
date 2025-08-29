@@ -1,0 +1,243 @@
+# 数据计算控制器API测试数据
+description: "数据计算控制器API测试用例"
+baseUrl: "/api/calculation"
+testCases:
+  - id: "execute-calculation-success"
+    description: "同步执行数据计算成功"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-calc-001"
+        businessType: "FINANCIAL_ANALYSIS"
+        description: "金融数据分析计算"
+        inputData:
+          dataset: "stock_prices"
+          timeRange: "2024-01-01,2024-12-31"
+          symbols: ["AAPL", "GOOGL", "MSFT"]
+        calculationType: "TREND_ANALYSIS"
+        parameters:
+          method: "moving_average"
+          window: 30
+          confidence: 0.95
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "data"
+        
+  - id: "execute-calculation-async-success"
+    description: "异步执行数据计算成功"
+    endpoint: "/execute-async"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-calc-async-001"
+        businessType: "RISK_ASSESSMENT"
+        description: "风险评估异步计算"
+        inputData:
+          portfolio: "tech_stocks"
+          timeHorizon: "1Y"
+          riskFreeRate: 0.03
+        calculationType: "VAR_CALCULATION"
+        parameters:
+          confidenceLevel: 0.99
+          method: "historical_simulation"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "taskId"
+        - "requestId"
+        - "status"
+      bodyMatches:
+        code: 200
+        message: "异步计算任务已创建"
+        status: "PENDING"
+        
+  - id: "execute-calculation-invalid-request"
+    description: "无效请求参数"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: ""
+        businessType: ""
+        description: ""
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "error"
+        
+  - id: "get-calculation-status-success"
+    description: "查询计算状态成功"
+    endpoint: "/status/req-calc-001"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "data"
+        
+  - id: "get-calculation-status-not-found"
+    description: "查询不存在的计算状态"
+    endpoint: "/status/non-existent-request-id"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 404
+      
+  - id: "cancel-calculation-success"
+    description: "取消计算任务成功"
+    endpoint: "/cancel/req-calc-async-001"
+    request:
+      method: "DELETE"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "requestId"
+      bodyMatches:
+        code: 200
+        message: "计算任务已取消"
+        
+  - id: "cancel-calculation-not-found"
+    description: "取消不存在的计算任务"
+    endpoint: "/cancel/non-existent-request-id"
+    request:
+      method: "DELETE"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+      bodyMatches:
+        code: 400
+        message: "取消计算任务失败"
+        
+  - id: "health-check"
+    description: "数据计算服务健康检查"
+    endpoint: "/health"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "service"
+        - "timestamp"
+        - "version"
+      bodyMatches:
+        status: "UP"
+        service: "deepSearch-service"
+        version: "1.0.0"
+        
+  - id: "service-info"
+    description: "获取服务信息"
+    endpoint: "/info"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "serviceName"
+        - "description"
+        - "version"
+        - "author"
+        - "features"
+      bodyMatches:
+        serviceName: "deepSearch-service"
+        description: "基础数据计算服务"
+        version: "1.0.0"
+        author: "jiangyang"
+        
+  - id: "execute-complex-calculation"
+    description: "复杂数据计算测试"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-complex-001"
+        businessType: "MACHINE_LEARNING"
+        description: "机器学习模型训练计算"
+        inputData:
+          features: ["age", "income", "credit_score", "debt_ratio"]
+          target: "loan_approval"
+          dataSize: 10000
+          splitRatio: 0.8
+        calculationType: "MODEL_TRAINING"
+        parameters:
+          algorithm: "random_forest"
+          maxDepth: 10
+          nEstimators: 100
+          crossValidation: 5
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "data"
+        
+  - id: "execute-calculation-large-dataset"
+    description: "大数据集计算测试"
+    endpoint: "/execute-async"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        requestId: "req-large-001"
+        businessType: "BIG_DATA_ANALYSIS"
+        description: "大数据集分析"
+        inputData:
+          dataSource: "hdfs://cluster/data/large_dataset.parquet"
+          recordCount: 10000000
+          columnCount: 50
+        calculationType: "STATISTICAL_ANALYSIS"
+        parameters:
+          operations: ["mean", "std", "correlation", "distribution"]
+          parallelism: 8
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "message"
+        - "taskId"
+        
+  - id: "execute-calculation-missing-required-field"
+    description: "缺少必填字段测试"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        businessType: "TEST"
+        description: "缺少requestId的测试"
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "error"

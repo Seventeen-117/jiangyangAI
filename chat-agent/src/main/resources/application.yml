@@ -1,0 +1,165 @@
+# DeepSearch Service 主配置文件
+server:
+  port: 8082
+spring:
+  application:
+    name: chat-agent-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  main:
+    web-application-type: reactive
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+    lazy-initialization: false
+    # 启用启动信息显示
+    banner-mode: console
+    # 启用启动信息
+    log-startup-info: true
+  datasource:
+    dynamic:
+      enabled: true  # 启用动态数据源
+      seata: false  # 禁用Seata分布式事务
+      primary: master  # 设置主数据源
+  ai:
+    tool:
+      calling:
+        enabled: false  # 禁用Spring AI工具调用功能
+    # OpenAI配置
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-demo-key-for-development-only}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      chat:
+        options:
+          model: gpt-3.5-turbo
+          temperature: 0.7
+          max-tokens: 1000
+    # Azure OpenAI配置
+    azure:
+      openai:
+        api-key: ${AZURE_OPENAI_API_KEY:demo-key-for-development-only}
+        endpoint: ${AZURE_OPENAI_ENDPOINT:https://demo.openai.azure.com}
+        chat:
+          options:
+            deployment-name: ${AZURE_OPENAI_DEPLOYMENT_NAME:gpt-35-turbo}
+            temperature: 0.7
+            max-tokens: 1000
+    # Ollama配置
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        options:
+          model: ${OLLAMA_MODEL:llama2}
+          temperature: 0.7
+  # 禁用Redis自动配置
+  redis:
+    enabled: false
+  # 禁用Elasticsearch自动配置
+  elasticsearch:
+    enabled: false
+
+# 服务配置
+service:
+  name: chat-agent-service
+  version: 1.0.0
+
+# Seata配置 - 禁用分布式事务但提供必要的配置避免验证错误
+seata:
+  enabled: false
+  auto-data-source-proxy: false
+  enable-auto-data-source-proxy: false
+  disable-global-transaction: true
+  application-id: ${spring.application.name}
+  tx-service-group: chat-agent-service-group
+  # 注册中心配置 - 提供基本配置避免验证错误
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace: ""
+      username: ""
+      password: ""
+  # 配置中心配置 - 提供基本配置避免验证错误
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace: ""
+      username: ""
+      password: ""
+  # 存储配置 - 提供基本配置避免验证错误
+  store:
+    mode: file
+    file:
+      dir: file_store/data
+  service:
+    vgroup-mapping:
+      chat-agent-service-group: default
+    grouplist:
+      default: 8.133.246.113:8091
+    enable-degrade: false
+    disable-global-transaction: true
+  client:
+    rm:
+      report-success-enable: false
+      table-meta-check-enable: false
+      report-retry-count: 0
+      async-commit-buffer-limit: 0
+    tm:
+      commit-retry-count: 0
+      rollback-retry-count: 0
+      default-global-transaction-timeout: 0
+      degrade-check: false
+      degrade-check-allow-times: 0
+      degrade-check-period: 0
+
+# 管理端点配置 - 禁用不必要的功能
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+    info:
+      enabled: true
+  # 禁用指标收集
+  metrics:
+    enable:
+      all: false
+  # 使用新的配置属性
+  simple:
+    metrics:
+      export:
+        enabled: false
+  # 禁用健康检查详情
+  health:
+    defaults:
+      enabled: false
+    redis:
+      enabled: false
+    db:
+      enabled: false
+    diskspace:
+      enabled: false
+    elasticsearch:
+      enabled: false
+    datasource:
+      enabled: false
+    cache:
+      enabled: false
+
+# 日志配置
+logging:
+  level:
+    # 设置根日志级别
+    root: INFO
+    io.seata: OFF
+    com.jiangyang.base.config: DEBUG
+    com.jiangyang.base.seata.util.SeataConfigValidator: WARN  # 降低Seata配置验证器的日志级别
+    org.springframework.ai: DEBUG
+    org.springframework.ai.model.tool: OFF  # 禁用工具调用相关日志
+

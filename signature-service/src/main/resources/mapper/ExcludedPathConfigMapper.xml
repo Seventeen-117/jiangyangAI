@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.signature.mapper.ExcludedPathConfigMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.signature.entity.ExcludedPathConfig">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="path_pattern" property="pathPattern" jdbcType="VARCHAR"/>
+        <result column="path_name" property="pathName" jdbcType="VARCHAR"/>
+        <result column="path_type" property="pathType" jdbcType="VARCHAR"/>
+        <result column="http_methods" property="httpMethods" jdbcType="VARCHAR"/>
+        <result column="exclude_reason" property="excludeReason" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="created_time" property="createdTime" jdbcType="TIMESTAMP"/>
+        <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, path_pattern, path_name, path_type, http_methods, exclude_reason, 
+        description, status, sort_order, created_time, updated_time
+    </sql>
+
+    <!-- 查询所有启用的排除路径配置 -->
+    <select id="selectAllEnabled" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        WHERE status = 1 
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <!-- 根据路径和方法查询匹配的排除路径配置 -->
+    <select id="selectByPathAndMethod" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        WHERE status = 1 
+        AND (
+            (path_type = 'PREFIX' AND #{path} LIKE CONCAT(path_pattern, '%'))
+            OR (path_type = 'EXACT' AND path_pattern = #{path})
+        )
+        AND (
+            http_methods IS NULL 
+            OR http_methods = '' 
+            OR FIND_IN_SET(#{method}, http_methods) > 0
+        )
+        ORDER BY sort_order ASC, id ASC
+        LIMIT 1
+    </select>
+
+    <!-- 根据ID查询排除路径配置 -->
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        WHERE id = #{id}
+    </select>
+
+    <!-- 插入排除路径配置 -->
+    <insert id="insert" parameterType="com.signature.entity.ExcludedPathConfig" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO excluded_path_config (
+            path_pattern, path_name, path_type, http_methods, exclude_reason,
+            description, status, sort_order, created_time, updated_time
+        ) VALUES (
+            #{pathPattern}, #{pathName}, #{pathType}, #{httpMethods}, #{excludeReason},
+            #{description}, #{status}, #{sortOrder}, NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 更新排除路径配置 -->
+    <update id="update" parameterType="com.signature.entity.ExcludedPathConfig">
+        UPDATE excluded_path_config 
+        SET 
+            path_pattern = #{pathPattern},
+            path_name = #{pathName},
+            path_type = #{pathType},
+            http_methods = #{httpMethods},
+            exclude_reason = #{excludeReason},
+            description = #{description},
+            status = #{status},
+            sort_order = #{sortOrder},
+            updated_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID删除排除路径配置 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM excluded_path_config WHERE id = #{id}
+    </delete>
+
+    <!-- 根据路径模式查询排除路径配置 -->
+    <select id="selectByPathPattern" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        WHERE path_pattern = #{pathPattern}
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <!-- 根据状态查询排除路径配置 -->
+    <select id="selectByStatus" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        WHERE status = #{status}
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <!-- 分页查询排除路径配置 -->
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM excluded_path_config 
+        ORDER BY sort_order ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 查询排除路径配置总数 -->
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM excluded_path_config
+    </select>
+
+</mapper>

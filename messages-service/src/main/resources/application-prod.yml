@@ -1,0 +1,135 @@
+# 生产环境配置
+
+# Spring Boot RocketMQ配置 - 生产环境
+# 这些属性是Spring Boot RocketMQ自动配置所必需的
+rocketmq:
+  name-server: rocketmq-namesrv:9876
+  producer:
+    group: jiangyang-prod-consumer-group
+  consumer:
+    group: jiangyang-prod-consumer-group
+
+# 消息服务配置 - 生产环境
+message:
+  service:
+    # 通用消息服务配置
+    common:
+      # 默认消息服务类型
+      default-type: rocketmq
+      # 默认消息类型
+      default-message-type: normal
+      # 默认主题
+      default-topic: default-topic
+    
+    # RocketMQ配置 - 生产环境
+    rocketmq:
+      enabled: true
+      name-server: rocketmq-namesrv:9876
+      producer-group: jiangyang-prod-consumer-group
+      consumer-group: jiangyang-prod-consumer-group
+    
+    # Kafka配置 - 生产环境
+    kafka:
+      enabled: false
+      bootstrap-servers: kafka-broker:9092
+      consumer:
+        group-id: jiangyang-prod-consumer-group
+      producer:
+        acks: all
+        batch-size: 32768
+        linger-ms: 5
+        buffer-memory: 67108864
+    
+    # RabbitMQ配置 - 生产环境
+    rabbitmq:
+      enabled: false
+      host: rabbitmq-server
+      port: 5672
+      username: ${RABBITMQ_USERNAME:admin}
+      password: ${RABBITMQ_PASSWORD:admin123}
+      virtual-host: /
+      connection:
+        timeout: 120000
+        heartbeat: 60
+
+# 日志配置 - 生产环境
+logging:
+  level:
+    com.jiangyang.messages: INFO
+    org.apache.rocketmq: WARN
+    org.apache.kafka: WARN
+    com.rabbitmq: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/messages-service.log
+    max-size: 500MB
+    max-history: 90
+
+# 性能调优配置
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+    max-connections: 8192
+    accept-count: 100
+
+# Dubbo配置 - 生产环境
+dubbo:
+  application:
+    name: messages-service
+    qos-enable: false
+    # 配置唯一的缓存路径，避免多实例冲突
+    metadata-type: local
+    # 禁用文件缓存，使用内存缓存
+    cache-file: false
+    # 配置应用实例ID，确保唯一性
+    environment: product
+  protocol:
+    name: dubbo
+    port: -1
+    # 配置协议级别的缓存控制
+    cache-file: false
+  registry:
+    address: nacos://${NACOS_HOST:nacos-server}:${NACOS_PORT:8848}
+    timeout: 10000
+    # 配置注册中心缓存
+    cache-file: false
+    # 禁用注册中心文件缓存
+    file: false
+  consumer:
+    timeout: 10000
+    retries: 3
+    check: false
+    # 禁用消费者缓存
+    cache-file: false
+    # 配置消费者元数据类型
+    metadata-type: local
+  provider:
+    timeout: 10000
+    retries: 3
+    # 禁用提供者缓存
+    cache-file: false
+    # 配置提供者元数据类型
+    metadata-type: local
+  # 全局配置
+  config-center:
+    timeout: 5000
+    # 禁用配置中心文件缓存
+    file: false
+  metadata-report:
+    timeout: 5000
+    # 禁用元数据报告文件缓存
+    file: false
+
+# Elasticsearch配置
+elasticsearch:
+  enabled: true  # 生产环境启用ES
+  host: ${ELASTICSEARCH_HOST:elasticsearch}
+  port: ${ELASTICSEARCH_PORT:9200}
+  scheme: ${ELASTICSEARCH_SCHEME:https}
+  username: ${ELASTICSEARCH_USERNAME:}
+  password: ${ELASTICSEARCH_PASSWORD:}

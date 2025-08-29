@@ -1,0 +1,397 @@
+# AI智能分析API测试数据
+description: "AI智能分析API测试用例"
+baseUrl: "/api/ai"
+testCases:
+  - id: "intelligent-document-analysis"
+    description: "智能文档分析"
+    endpoint: "/analyze/document"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        analysisId: "doc-analysis-001"
+        documentType: "BUSINESS_CONTRACT"
+        analysisMode: "COMPREHENSIVE"
+        documentContent:
+          text: "这是一个商务合同，包含了甲方乙方的权利义务、付款条款、违约责任等重要内容..."
+          images: ["base64-encoded-image-1", "base64-encoded-image-2"]
+          metadata:
+            pageCount: 15
+            language: "zh-CN"
+            fileSize: "2.5MB"
+            format: "PDF"
+        analysisRequirements:
+          extractEntities: true
+          identifyRisks: true
+          summarizeContent: true
+          generateQuestions: true
+          complianceCheck: true
+          financialTermsAnalysis: true
+        aiModelConfig:
+          primaryModel: "GPT-4"
+          fallbackModel: "Claude-3"
+          temperature: 0.3
+          maxTokens: 4000
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "analysisId"
+        - "documentSummary"
+        - "extractedEntities"
+        - "riskAssessment"
+        - "recommendations"
+        - "complianceScore"
+        - "confidenceLevel"
+        
+  - id: "multi-modal-content-analysis"
+    description: "多模态内容分析"
+    endpoint: "/analyze/multimodal"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        analysisId: "multimodal-001"
+        contentType: "MIXED_MEDIA"
+        inputData:
+          textContent: "产品介绍：这是我们新推出的智能手机..."
+          images:
+            - url: "https://example.com/product1.jpg"
+              description: "产品正面图"
+              format: "JPEG"
+            - url: "https://example.com/product2.jpg"
+              description: "产品侧面图"
+              format: "JPEG"
+          audioFiles:
+            - url: "https://example.com/product-intro.mp3"
+              duration: 120
+              format: "MP3"
+          videoFiles:
+            - url: "https://example.com/demo-video.mp4"
+              duration: 300
+              format: "MP4"
+        analysisObjectives:
+          - "CONTENT_CONSISTENCY_CHECK"
+          - "SENTIMENT_ANALYSIS"
+          - "BRAND_COMPLIANCE"
+          - "QUALITY_ASSESSMENT"
+          - "ACCESSIBILITY_EVALUATION"
+        outputFormat: "DETAILED_REPORT"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "analysisId"
+        - "overallScore"
+        - "modalityAnalysis"
+        - "consistencyReport"
+        - "recommendations"
+        - "detailedFindings"
+        
+  - id: "real-time-sentiment-analysis"
+    description: "实时情感分析"
+    endpoint: "/analyze/sentiment"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        analysisId: "sentiment-realtime-001"
+        analysisType: "REAL_TIME"
+        textData:
+          content: "今天的会议非常成功，团队合作很愉快，项目进展顺利，客户也很满意我们的方案。"
+          language: "zh-CN"
+          source: "CUSTOMER_FEEDBACK"
+          timestamp: "2024-01-01T10:00:00Z"
+        analysisConfig:
+          granularity: "SENTENCE_LEVEL"
+          emotionCategories: ["JOY", "ANGER", "SADNESS", "FEAR", "SURPRISE", "DISGUST"]
+          aspectBasedAnalysis: true
+          compareWithBaseline: true
+          generateInsights: true
+        realTimeConfig:
+          streaming: false
+          batchSize: 1
+          responseTimeout: 5000
+    expectedResponse:
+      statusCode: 200
+      responseTimeMs: 2000
+      bodyContains:
+        - "analysisId"
+        - "overallSentiment"
+        - "emotionScores"
+        - "aspectSentiments"
+        - "confidenceScores"
+        - "keyPhrases"
+        
+  - id: "intelligent-code-review"
+    description: "智能代码审查"
+    endpoint: "/analyze/code"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        reviewId: "code-review-001"
+        codeAnalysisType: "COMPREHENSIVE_REVIEW"
+        codeData:
+          language: "Java"
+          files:
+            - fileName: "UserService.java"
+              content: |
+                public class UserService {
+                    @Autowired
+                    private UserRepository userRepository;
+                    
+                    public User createUser(UserDto userDto) {
+                        if (userDto == null) {
+                            throw new IllegalArgumentException("User data cannot be null");
+                        }
+                        
+                        User user = new User();
+                        user.setName(userDto.getName());
+                        user.setEmail(userDto.getEmail());
+                        
+                        return userRepository.save(user);
+                    }
+                }
+              lineCount: 15
+            - fileName: "UserController.java"
+              content: |
+                @RestController
+                @RequestMapping("/api/users")
+                public class UserController {
+                    @Autowired
+                    private UserService userService;
+                    
+                    @PostMapping
+                    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+                        User user = userService.createUser(userDto);
+                        return ResponseEntity.ok(user);
+                    }
+                }
+              lineCount: 12
+        reviewCriteria:
+          checkCodeQuality: true
+          identifySecurityIssues: true
+          performanceAnalysis: true
+          maintainabilityAssessment: true
+          testCoverageEvaluation: true
+          documentationReview: true
+        aiModelSettings:
+          codeReviewModel: "CodeT5"
+          securityScanModel: "SecureBERT"
+          analysisDepth: "DEEP"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "reviewId"
+        - "overallScore"
+        - "codeQualityIssues"
+        - "securityVulnerabilities"
+        - "performanceIssues"
+        - "suggestions"
+        - "bestPractices"
+        
+  - id: "predictive-analytics"
+    description: "预测性分析"
+    endpoint: "/analyze/predictive"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        predictionId: "prediction-001"
+        predictionType: "BUSINESS_FORECAST"
+        historicalData:
+          timeSeriesData:
+            - timestamp: "2024-01-01"
+              value: 1000
+              category: "SALES"
+            - timestamp: "2024-01-02"
+              value: 1050
+              category: "SALES"
+            - timestamp: "2024-01-03"
+              value: 980
+              category: "SALES"
+          contextualFactors:
+            seasonality: "Q1"
+            marketTrends: ["GROWTH", "DIGITAL_TRANSFORMATION"]
+            economicIndicators:
+              gdpGrowth: 3.2
+              inflationRate: 2.1
+              unemployment: 4.5
+        predictionParameters:
+          forecastHorizon: 30
+          confidenceLevel: 0.95
+          includeUncertainty: true
+          modelType: "ENSEMBLE"
+          features: ["HISTORICAL_TRENDS", "SEASONAL_PATTERNS", "EXTERNAL_FACTORS"]
+        outputRequirements:
+          generateVisualization: true
+          explainPredictions: true
+          identifyKeyDrivers: true
+          provideAlternativeScenarios: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "predictionId"
+        - "forecastResults"
+        - "confidenceIntervals"
+        - "keyDrivers"
+        - "scenarios"
+        - "recommendations"
+        
+  - id: "anomaly-detection-analysis"
+    description: "异常检测分析"
+    endpoint: "/analyze/anomaly"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        detectionId: "anomaly-detection-001"
+        detectionType: "SYSTEM_BEHAVIOR"
+        dataStream:
+          metrics:
+            - name: "cpu_usage"
+              values: [20, 25, 22, 85, 90, 95, 23, 21]  # 异常峰值
+              timestamps: ["10:00", "10:01", "10:02", "10:03", "10:04", "10:05", "10:06", "10:07"]
+            - name: "memory_usage"
+              values: [60, 65, 62, 95, 98, 99, 63, 61]  # 内存异常
+              timestamps: ["10:00", "10:01", "10:02", "10:03", "10:04", "10:05", "10:06", "10:07"]
+            - name: "network_latency"
+              values: [10, 12, 11, 200, 250, 300, 13, 11]  # 网络延迟异常
+              timestamps: ["10:00", "10:01", "10:02", "10:03", "10:04", "10:05", "10:06", "10:07"]
+        detectionConfig:
+          algorithm: "ISOLATION_FOREST"
+          sensitivityLevel: "MEDIUM"
+          lookbackWindow: 24
+          realTimeProcessing: true
+          correlationAnalysis: true
+        alertingConfig:
+          severity: "HIGH"
+          notificationChannels: ["EMAIL", "SMS", "WEBHOOK"]
+          escalationRules: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "detectionId"
+        - "anomaliesDetected"
+        - "severityScores"
+        - "timeWindows"
+        - "correlations"
+        - "recommendations"
+        
+  - id: "natural-language-query"
+    description: "自然语言查询"
+    endpoint: "/query/natural-language"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        queryId: "nlq-001"
+        userQuery: "上个月销售额最高的产品类别是什么？请显示前5名并分析增长趋势。"
+        queryContext:
+          dataSource: "BUSINESS_DATABASE"
+          userRole: "BUSINESS_ANALYST"
+          timeZone: "Asia/Shanghai"
+          language: "zh-CN"
+        queryProcessingConfig:
+          enableSemanticSearch: true
+          includeVisualization: true
+          generateExplanation: true
+          suggestFollowUpQueries: true
+        dataAccessConfig:
+          allowedTables: ["sales", "products", "categories"]
+          restrictedColumns: ["customer_private_info"]
+          maxResultRows: 1000
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "queryId"
+        - "sqlQuery"
+        - "results"
+        - "visualization"
+        - "explanation"
+        - "followUpSuggestions"
+        
+  - id: "content-generation"
+    description: "智能内容生成"
+    endpoint: "/generate/content"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        generationId: "content-gen-001"
+        contentType: "MARKETING_COPY"
+        generationParameters:
+          topic: "智能手机新品发布"
+          targetAudience: "科技爱好者"
+          tone: "专业且富有激情"
+          length: "MEDIUM"
+          language: "zh-CN"
+          keywords: ["创新", "性能", "设计", "用户体验"]
+        contentRequirements:
+          includeCallToAction: true
+          seoOptimized: true
+          brandVoiceConsistent: true
+          factsAccurate: true
+        generationConfig:
+          model: "GPT-4"
+          creativity: 0.7
+          factualAccuracy: 0.9
+          brandAlignment: 0.8
+          generateMultipleVariants: 3
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "generationId"
+        - "generatedContent"
+        - "variants"
+        - "qualityScore"
+        - "suggestions"
+        - "metadata"
+        
+  - id: "batch-processing-analysis"
+    description: "批量处理分析"
+    endpoint: "/analyze/batch"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        batchId: "batch-analysis-001"
+        batchType: "DOCUMENT_BATCH"
+        processingMode: "PARALLEL"
+        items:
+          - itemId: "doc-001"
+            content: "文档内容1..."
+            analysisType: "SENTIMENT_ANALYSIS"
+          - itemId: "doc-002"
+            content: "文档内容2..."
+            analysisType: "ENTITY_EXTRACTION"
+          - itemId: "doc-003"
+            content: "文档内容3..."
+            analysisType: "CLASSIFICATION"
+        batchConfig:
+          maxConcurrency: 10
+          timeoutPerItem: 30000
+          failureHandling: "CONTINUE_ON_ERROR"
+          priorityLevel: "HIGH"
+        outputConfig:
+          aggregateResults: true
+          generateSummary: true
+          exportFormat: "JSON"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "batchId"
+        - "status"
+        - "processedCount"
+        - "results"
+        - "summary"
+        - "errors"

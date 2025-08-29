@@ -1,0 +1,445 @@
+# 事务事件处理API测试数据
+description: "事务事件处理API测试用例"
+baseUrl: "/api/transaction-events"
+testCases:
+  - id: "receive-transaction-event"
+    description: "接收事务事件"
+    endpoint: "/receive"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+        X-Transaction-Type: "BUSINESS_EVENT"
+      body:
+        eventId: "tx-event-001"
+        transactionId: "tx-001"
+        eventType: "ORDER_CREATED"
+        eventSource: "order-service"
+        eventData:
+          orderId: "order-12345"
+          customerId: "customer-001"
+          totalAmount: 299.99
+          currency: "USD"
+          items:
+            - productId: "product-001"
+              quantity: 2
+              price: 149.99
+        eventMetadata:
+          timestamp: "2024-01-01T10:00:00Z"
+          version: "1.0"
+          correlationId: "corr-001"
+          causationId: "cause-001"
+        processingConfig:
+          async: true
+          retryPolicy: "EXPONENTIAL_BACKOFF"
+          maxRetries: 3
+          timeout: 30000
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "eventId"
+        - "processingId"
+        - "status"
+      bodyMatches:
+        success: true
+        status: "ACCEPTED"
+        
+  - id: "batch-receive-events"
+    description: "批量接收事务事件"
+    endpoint: "/batch-receive"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        batchId: "batch-events-001"
+        events:
+          - eventId: "batch-event-001"
+            transactionId: "batch-tx-001"
+            eventType: "PAYMENT_PROCESSED"
+            eventSource: "payment-service"
+            eventData:
+              paymentId: "payment-001"
+              amount: 100.00
+              status: "SUCCESS"
+          - eventId: "batch-event-002"
+            transactionId: "batch-tx-002"
+            eventType: "INVENTORY_RESERVED"
+            eventSource: "inventory-service"
+            eventData:
+              reservationId: "reservation-001"
+              productId: "product-001"
+              quantity: 5
+          - eventId: "batch-event-003"
+            transactionId: "batch-tx-003"
+            eventType: "SHIPPING_SCHEDULED"
+            eventSource: "shipping-service"
+            eventData:
+              shippingId: "shipping-001"
+              trackingNumber: "TRACK123456"
+              estimatedDelivery: "2024-01-05"
+        batchConfig:
+          processInOrder: true
+          failFast: false
+          maxConcurrency: 5
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "batchId"
+        - "processedCount"
+        - "results"
+        
+  - id: "get-event-history"
+    description: "获取事件历史"
+    endpoint: "/history/tx-001"
+    request:
+      method: "GET"
+      parameters:
+        includeMetadata: true
+        sortBy: "timestamp"
+        sortOrder: "ASC"
+        limit: 50
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "transactionId"
+        - "events"
+        - "totalCount"
+        - "timeline"
+        
+  - id: "get-event-statistics"
+    description: "获取事件统计信息"
+    endpoint: "/statistics"
+    request:
+      method: "GET"
+      parameters:
+        timeRange: "24h"
+        groupBy: "eventType"
+        includeFailures: true
+        includePerformanceMetrics: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "statistics"
+        - "eventCounts"
+        - "performanceMetrics"
+        - "errorRates"
+        
+  - id: "query-events-by-time-range"
+    description: "按时间范围查询事件"
+    endpoint: "/time-range"
+    request:
+      method: "GET"
+      parameters:
+        startTime: "2024-01-01T00:00:00Z"
+        endTime: "2024-01-02T00:00:00Z"
+        eventTypes: "ORDER_CREATED,PAYMENT_PROCESSED"
+        eventSources: "order-service,payment-service"
+        page: 1
+        size: 100
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "events"
+        - "totalCount"
+        - "pageInfo"
+
+# 服务发现和调用API测试数据
+---
+description: "服务发现和调用API测试用例"
+baseUrl: "/api/service-discovery"
+testCases:
+  - id: "get-services-list"
+    description: "获取服务列表"
+    endpoint: "/services"
+    request:
+      method: "GET"
+      parameters:
+        includeHealth: true
+        includeMetadata: true
+        status: "UP"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "services"
+        - "totalCount"
+        - "healthStatus"
+        
+  - id: "get-service-url"
+    description: "获取服务URL"
+    endpoint: "/service-url/payment-service"
+    request:
+      method: "GET"
+      parameters:
+        loadBalancer: "ROUND_ROBIN"
+        healthCheck: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "serviceUrl"
+        - "instanceId"
+        - "healthStatus"
+        
+  - id: "call-service-async"
+    description: "异步调用服务"
+    endpoint: "/call-service/payment-service"
+    request:
+      method: "GET"
+      parameters:
+        method: "POST"
+        path: "/api/payments"
+        async: true
+        timeout: 30000
+      headers:
+        X-Service-Call: "async"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "callId"
+        - "status"
+        - "estimatedCompletion"
+        
+  - id: "call-service-sync"
+    description: "同步调用服务"
+    endpoint: "/call-service-sync/inventory-service"
+    request:
+      method: "GET"
+      parameters:
+        method: "GET"
+        path: "/api/inventory/check"
+        timeout: 10000
+        retryCount: 3
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "response"
+        - "responseTime"
+        - "serviceInstance"
+        
+  - id: "service-discovery-health"
+    description: "服务发现健康检查"
+    endpoint: "/health"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "registeredServices"
+        - "healthyServices"
+        - "lastUpdate"
+      bodyMatches:
+        status: "UP"
+
+# 系统配置和状态API测试数据
+---
+description: "系统配置和状态API测试用例"
+baseUrl: "/api/system"
+testCases:
+  - id: "get-system-status"
+    description: "获取系统状态"
+    endpoint: "/status"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "version"
+        - "uptime"
+        - "memoryUsage"
+        - "cpuUsage"
+        - "diskUsage"
+      bodyMatches:
+        status: "HEALTHY"
+        
+  - id: "get-api-configs"
+    description: "获取API配置"
+    endpoint: "/api-configs"
+    request:
+      method: "GET"
+      parameters:
+        includeDefaults: true
+        category: "AI_MODELS"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "configs"
+        - "categories"
+        - "metadata"
+        
+  - id: "create-api-config"
+    description: "创建API配置"
+    endpoint: "/api-configs"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        configKey: "ai.model.gpt4.temperature"
+        configValue: "0.7"
+        category: "AI_MODELS"
+        description: "GPT-4模型温度设置"
+        dataType: "FLOAT"
+        validationRules:
+          min: 0.0
+          max: 2.0
+          required: true
+        environment: "PRODUCTION"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "configId"
+        - "message"
+      bodyMatches:
+        success: true
+        message: "配置创建成功"
+        
+  - id: "update-api-config"
+    description: "更新API配置"
+    endpoint: "/api-configs/1"
+    request:
+      method: "PUT"
+      headers:
+        Content-Type: "application/json"
+      body:
+        configValue: "0.8"
+        description: "更新GPT-4模型温度设置"
+        lastModifiedBy: "admin"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "message"
+      bodyMatches:
+        success: true
+        message: "配置更新成功"
+        
+  - id: "delete-api-config"
+    description: "删除API配置"
+    endpoint: "/api-configs/1"
+    request:
+      method: "DELETE"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "message"
+      bodyMatches:
+        success: true
+        message: "配置删除成功"
+        
+  - id: "init-api-client"
+    description: "初始化API客户端"
+    endpoint: "/init-api-client"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        clientName: "test-api-client"
+        clientType: "WEB_APPLICATION"
+        allowedApis: ["ai-analysis", "document-processing", "content-generation"]
+        rateLimit:
+          requestsPerMinute: 1000
+          burstSize: 100
+        authenticationMethod: "API_KEY"
+        environment: "DEVELOPMENT"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "clientId"
+        - "apiKey"
+        - "configuration"
+
+# 性能监控和指标API测试数据
+---
+description: "性能监控和指标API测试用例"
+baseUrl: "/api/metrics"
+testCases:
+  - id: "get-performance-metrics"
+    description: "获取性能指标"
+    endpoint: "/performance"
+    request:
+      method: "GET"
+      parameters:
+        timeRange: "1h"
+        metrics: "cpu,memory,disk,network"
+        aggregation: "AVERAGE"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "metrics"
+        - "timeRange"
+        - "aggregation"
+        - "dataPoints"
+        
+  - id: "get-ai-model-metrics"
+    description: "获取AI模型指标"
+    endpoint: "/ai-models"
+    request:
+      method: "GET"
+      parameters:
+        modelName: "gpt-4"
+        includeLatency: true
+        includeAccuracy: true
+        includeThroughput: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "modelMetrics"
+        - "latencyStats"
+        - "accuracyScores"
+        - "throughputData"
+        
+  - id: "get-api-usage-metrics"
+    description: "获取API使用指标"
+    endpoint: "/api-usage"
+    request:
+      method: "GET"
+      parameters:
+        timeRange: "24h"
+        groupBy: "endpoint"
+        includeErrors: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "usageStats"
+        - "requestCounts"
+        - "errorRates"
+        - "responseTimesDistribution"
+        
+  - id: "export-metrics"
+    description: "导出指标数据"
+    endpoint: "/export"
+    request:
+      method: "GET"
+      parameters:
+        format: "PROMETHEUS"
+        timeRange: "1h"
+        includeLabels: true
+    expectedResponse:
+      statusCode: 200
+      headers:
+        Content-Type: "text/plain"
+      bodyContains:
+        - "# HELP"
+        - "# TYPE"
+        - "_total"
+        - "_seconds"

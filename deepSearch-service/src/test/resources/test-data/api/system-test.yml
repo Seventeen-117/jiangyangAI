@@ -1,0 +1,301 @@
+# 系统测试和错误处理API测试数据
+description: "系统测试和错误处理API测试用例"
+baseUrl: "/actuator"
+testCases:
+  - id: "system-health-check"
+    description: "系统健康检查"
+    endpoint: "/health"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+      bodyMatches:
+        status: "UP"
+        
+  - id: "system-info-check"
+    description: "系统信息查询"
+    endpoint: "/info"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      
+# Feign客户端测试
+---
+description: "Feign客户端测试用例"
+baseUrl: "/api/test"
+testCases:
+  - id: "ai-agent-feign-test"
+    description: "AI代理Feign客户端测试"
+    endpoint: "/ai-agent-connection"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "response"
+        
+  - id: "bgai-service-dubbo-test"
+    description: "BGAI服务Dubbo连接测试"
+    endpoint: "/bgai-service-connection"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "status"
+        - "serviceName"
+        
+# 错误处理测试
+---
+description: "错误处理测试用例"
+baseUrl: "/api/calculation"
+testCases:
+  - id: "invalid-json-request"
+    description: "无效JSON请求"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body: "invalid json format"
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "error"
+        
+  - id: "missing-required-fields"
+    description: "缺少必填字段"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        description: "测试缺少必填字段"
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "validationErrors"
+        
+  - id: "invalid-parameter-type"
+    description: "参数类型错误"
+    endpoint: "/status/123invalid"
+    request:
+      method: "GET"
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "parameter"
+        
+  - id: "method-not-allowed"
+    description: "不支持的HTTP方法"
+    endpoint: "/execute"
+    request:
+      method: "PATCH"
+    expectedResponse:
+      statusCode: 405
+      
+  - id: "large-request-payload"
+    description: "超大请求载荷测试"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-large-payload-001"
+        businessType: "STRESS_TEST"
+        description: "超大数据载荷测试"
+        inputData:
+          largeArray: [重复数据10000次]
+          massiveString: "大量文本数据" * 10000
+    expectedResponse:
+      statusCode: 413
+      
+  - id: "concurrent-requests-test"
+    description: "并发请求测试"
+    endpoint: "/execute-async"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-concurrent-{REQUEST_ID}"
+        businessType: "CONCURRENT_TEST"
+        description: "并发请求测试"
+        inputData:
+          testData: "并发测试数据"
+        calculationType: "SIMPLE_CALCULATION"
+      concurrent: 20
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "code"
+        - "taskId"
+        
+  - id: "timeout-test"
+    description: "超时测试"
+    endpoint: "/execute"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-timeout-001"
+        businessType: "TIMEOUT_TEST"
+        description: "长时间运行计算测试"
+        inputData:
+          simulationCount: 100000000
+          complexity: "HIGH"
+        calculationType: "LONG_RUNNING_TASK"
+      timeout: 30000
+    expectedResponse:
+      statusCode: 504
+      
+  - id: "memory-stress-test"
+    description: "内存压力测试"
+    endpoint: "/execute-async"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-memory-001"
+        businessType: "MEMORY_STRESS"
+        description: "内存压力测试"
+        inputData:
+          largeDataset: 
+            rows: 1000000
+            columns: 100
+            dataType: "DOUBLE"
+        calculationType: "MATRIX_OPERATIONS"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "taskId"
+        
+# 性能测试
+---
+description: "性能测试用例"
+baseUrl: "/api/algorithm"
+testCases:
+  - id: "performance-monte-carlo"
+    description: "蒙特卡洛性能测试"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-perf-mc-001"
+        applicationType: "PERFORMANCE_TEST"
+        description: "蒙特卡洛性能基准测试"
+        simulationCount: 1000000
+        parameters:
+          benchmarkMode: true
+          measureMemory: true
+          measureTime: true
+    expectedResponse:
+      statusCode: 200
+      responseTimeMs: 10000
+      bodyContains:
+        - "requestId"
+        - "result"
+        - "performanceMetrics"
+        
+  - id: "performance-large-deviation"
+    description: "大偏差理论性能测试"
+    endpoint: "/self-normalized-large-deviation"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-perf-snld-001"
+        applicationType: "PERFORMANCE_TEST"
+        description: "大偏差理论性能基准测试"
+        sampleData: [生成10000个随机数]
+        confidenceLevel: 0.99
+        parameters:
+          iterations: 10000
+          benchmarkMode: true
+    expectedResponse:
+      statusCode: 200
+      responseTimeMs: 15000
+      bodyContains:
+        - "requestId"
+        - "performanceMetrics"
+        
+# 边界条件测试
+---
+description: "边界条件测试用例"
+baseUrl: "/api/algorithm"
+testCases:
+  - id: "zero-sample-data"
+    description: "空样本数据测试"
+    endpoint: "/self-normalized-large-deviation"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-zero-sample-001"
+        applicationType: "BOUNDARY_TEST"
+        sampleData: []
+        confidenceLevel: 0.95
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "code"
+        - "message"
+        - "error"
+        
+  - id: "extreme-confidence-level"
+    description: "极端置信水平测试"
+    endpoint: "/wilson-score"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-extreme-conf-001"
+        applicationType: "BOUNDARY_TEST"
+        ratingDataList:
+          - itemId: "test-001"
+            positiveCount: 1
+            totalCount: 1
+        confidenceLevel: 0.999999
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "rankedItems"
+        
+  - id: "single-simulation-monte-carlo"
+    description: "单次模拟蒙特卡洛测试"
+    endpoint: "/monte-carlo"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        requestId: "req-single-sim-001"
+        applicationType: "BOUNDARY_TEST"
+        simulationCount: 1
+        parameters:
+          testMode: "MINIMUM"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "requestId"
+        - "result"

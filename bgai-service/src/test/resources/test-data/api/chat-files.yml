@@ -1,0 +1,401 @@
+# 聊天完成API测试数据
+description: "聊天完成API测试用例"
+baseUrl: "/api/chat"
+testCases:
+  - id: "chat-completion-basic"
+    description: "基础聊天完成"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        X-Gateway-Source: "test-service"
+      body:
+        model: "gpt-3.5-turbo"
+        messages:
+          - role: "system"
+            content: "你是一个专业的AI助手，请用中文回答问题。"
+          - role: "user"
+            content: "请解释一下什么是人工智能？"
+        temperature: 0.7
+        max_tokens: 1000
+        top_p: 1.0
+        frequency_penalty: 0.0
+        presence_penalty: 0.0
+        stream: false
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "id"
+        - "object"
+        - "created"
+        - "model"
+        - "choices"
+        - "usage"
+      bodyMatches:
+        object: "chat.completion"
+        
+  - id: "chat-completion-streaming"
+    description: "流式聊天完成"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+        Accept: "text/event-stream"
+      body:
+        model: "gpt-4"
+        messages:
+          - role: "user"
+            content: "请详细介绍一下深度学习的发展历史"
+        temperature: 0.8
+        max_tokens: 2000
+        stream: true
+        stop: ["<|END|>"]
+    expectedResponse:
+      statusCode: 200
+      headers:
+        Content-Type: "text/event-stream"
+      bodyContains:
+        - "data: {"
+        - "choices"
+        - "delta"
+        
+  - id: "chat-completion-with-functions"
+    description: "带函数调用的聊天完成"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        model: "gpt-4"
+        messages:
+          - role: "user"
+            content: "今天北京的天气怎么样？"
+        functions:
+          - name: "get_current_weather"
+            description: "获取指定城市的当前天气信息"
+            parameters:
+              type: "object"
+              properties:
+                location:
+                  type: "string"
+                  description: "城市名称，例如：北京，上海"
+                unit:
+                  type: "string"
+                  enum: ["celsius", "fahrenheit"]
+                  description: "温度单位"
+              required: ["location"]
+        function_call: "auto"
+        temperature: 0.3
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "choices"
+        - "function_call"
+        - "name"
+        - "arguments"
+        
+  - id: "chat-completion-multimodal"
+    description: "多模态聊天完成"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        model: "gpt-4-vision-preview"
+        messages:
+          - role: "user"
+            content:
+              - type: "text"
+                text: "请分析这张图片中的内容"
+              - type: "image_url"
+                image_url:
+                  url: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD..."
+                  detail: "high"
+        max_tokens: 1500
+        temperature: 0.5
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "choices"
+        - "message"
+        - "content"
+        
+  - id: "chat-completion-with-context"
+    description: "带上下文的聊天完成"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        model: "gpt-3.5-turbo"
+        messages:
+          - role: "system"
+            content: "你是一个客服助手，负责处理电商平台的用户咨询。"
+          - role: "user"
+            content: "我的订单什么时候能到？"
+          - role: "assistant"
+            content: "请提供您的订单号，我来为您查询物流信息。"
+          - role: "user"
+            content: "订单号是ORDER123456"
+        temperature: 0.3
+        max_tokens: 500
+        user: "customer-001"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "choices"
+        - "message"
+        - "content"
+        
+  - id: "chat-completion-error-handling"
+    description: "聊天完成错误处理"
+    endpoint: "/completions"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        model: "invalid-model"
+        messages:
+          - role: "user"
+            content: "测试无效模型"
+    expectedResponse:
+      statusCode: 400
+      bodyContains:
+        - "error"
+        - "type"
+        - "message"
+
+# 文件处理API测试数据
+---
+description: "文件处理API测试用例"
+baseUrl: "/api/files"
+testCases:
+  - id: "file-upload-single"
+    description: "单文件上传"
+    endpoint: "/upload"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "multipart/form-data"
+        X-Gateway-Source: "test-service"
+      body:
+        file: "@test-document.pdf"
+        purpose: "DOCUMENT_ANALYSIS"
+        metadata:
+          originalName: "test-document.pdf"
+          description: "测试文档"
+          tags: ["test", "document", "analysis"]
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "fileId"
+        - "fileName"
+        - "fileSize"
+        - "fileType"
+        - "uploadTime"
+        
+  - id: "file-upload-reactive"
+    description: "响应式文件上传"
+    endpoint: "/upload/reactive"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "multipart/form-data"
+      body:
+        file: "@large-dataset.csv"
+        purpose: "DATA_PROCESSING"
+        processAsync: true
+        notificationUrl: "https://callback.example.com/file-processed"
+    expectedResponse:
+      statusCode: 202
+      bodyContains:
+        - "success"
+        - "uploadId"
+        - "status"
+        - "estimatedProcessingTime"
+      bodyMatches:
+        success: true
+        status: "PROCESSING"
+        
+  - id: "file-upload-multiple"
+    description: "多文件上传"
+    endpoint: "/upload/batch"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "multipart/form-data"
+      body:
+        files: ["@doc1.pdf", "@doc2.docx", "@image1.jpg"]
+        purpose: "BATCH_ANALYSIS"
+        batchConfig:
+          processInParallel: true
+          maxConcurrency: 3
+          failureHandling: "CONTINUE_ON_ERROR"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "batchId"
+        - "uploadedFiles"
+        - "totalCount"
+        - "successCount"
+        
+  - id: "file-save-metadata"
+    description: "保存文件元数据"
+    endpoint: "/save"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        fileId: "file-001"
+        metadata:
+          title: "业务报告"
+          author: "张三"
+          department: "财务部"
+          tags: ["报告", "Q4", "财务"]
+          customFields:
+            reportType: "quarterly"
+            confidentialityLevel: "internal"
+        fileInfo:
+          originalPath: "/documents/reports/q4-report.pdf"
+          processingStatus: "COMPLETED"
+          analysisResults:
+            pageCount: 25
+            wordCount: 5000
+            language: "zh-CN"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "fileId"
+        - "message"
+      bodyMatches:
+        success: true
+        message: "文件元数据保存成功"
+        
+  - id: "get-allowed-file-types"
+    description: "获取允许的文件类型"
+    endpoint: "/allowed-types"
+    request:
+      method: "GET"
+      parameters:
+        category: "DOCUMENT"
+        includeDescription: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "allowedTypes"
+        - "maxFileSize"
+        - "descriptions"
+        
+  - id: "create-allowed-file-type"
+    description: "创建允许的文件类型"
+    endpoint: "/allowed-types"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        fileExtension: ".xlsx"
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        category: "SPREADSHEET"
+        maxFileSize: 52428800  # 50MB
+        description: "Excel电子表格文件"
+        allowedPurposes: ["DATA_ANALYSIS", "REPORT_GENERATION"]
+        securityLevel: "STANDARD"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "typeId"
+        - "message"
+        
+  - id: "delete-allowed-file-type"
+    description: "删除允许的文件类型"
+    endpoint: "/allowed-types/1"
+    request:
+      method: "DELETE"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "message"
+      bodyMatches:
+        success: true
+        message: "文件类型删除成功"
+        
+  - id: "get-mime-types"
+    description: "获取MIME类型映射"
+    endpoint: "/mime-types"
+    request:
+      method: "GET"
+      parameters:
+        category: "IMAGE"
+        includeObsolete: false
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "mimeTypes"
+        - "mappings"
+        - "categories"
+        
+  - id: "file-security-scan"
+    description: "文件安全扫描"
+    endpoint: "/security/scan"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        fileId: "file-001"
+        scanType: "COMPREHENSIVE"
+        scanOptions:
+          virusScan: true
+          malwareScan: true
+          contentAnalysis: true
+          metadataInspection: true
+        quarantineOnThreat: true
+        notifyOnCompletion: true
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "scanId"
+        - "status"
+        - "estimatedCompletion"
+        
+  - id: "file-content-extraction"
+    description: "文件内容提取"
+    endpoint: "/extract/content"
+    request:
+      method: "POST"
+      headers:
+        Content-Type: "application/json"
+      body:
+        fileId: "file-001"
+        extractionType: "FULL_TEXT"
+        options:
+          preserveFormatting: true
+          extractImages: true
+          extractTables: true
+          detectLanguage: true
+          ocrEnabled: true
+        outputFormat: "STRUCTURED_JSON"
+    expectedResponse:
+      statusCode: 200
+      bodyContains:
+        - "success"
+        - "extractionId"
+        - "extractedContent"
+        - "metadata"
+        - "contentStructure"

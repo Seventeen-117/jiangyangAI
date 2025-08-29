@@ -1,0 +1,69 @@
+# DeepSearch Service 主配置文件
+spring:
+  application:
+    name: messages-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+# Dubbo配置
+dubbo:
+  application:
+    name: ${spring.application.name}
+    version: 1.0.0
+    logger: slf4j
+  registry:
+    address: nacos://${NACOS_HOST:8.133.246.113}:${NACOS_PORT:8848}
+    group: ${NACOS_GROUP:DEFAULT_GROUP}
+    namespace: ${NACOS_NAMESPACE:d750d92e-152f-4055-a641-3bc9dda85a29}
+    timeout: 10000
+    check: false
+  protocol:
+    name: dubbo
+    port: 20882
+    serialization: hessian2
+    threads: 200
+    accepts: 1000
+    heartbeat: 60000
+  provider:
+    timeout: 5000   # 消息服务中等超时时间
+    retries: 0
+    threads: 200    # 消息服务标准线程配置
+    accepts: 1000
+    group: messages-service
+  scan:
+    base-packages: com.jiangyang.messages
+  # 服务治理配置
+  governance:
+    enabled: true
+  metadata-report:
+    enabled: ${DUBBO_METADATA_REPORT_ENABLED:true}
+    retry-times: 3
+    retry-period: 5000
+  metrics:
+    enabled: ${DUBBO_METRICS_ENABLED:false}
+    protocol: prometheus
+    port: 28083  # messages-service专用监控端口
+    enable-jvm: true
+
+# 日志配置
+logging:
+  level:
+    org.apache.dubbo: INFO
+    com.jiangyang.dubbo: DEBUG
+    com.jiangyang.messages: DEBUG
+    com.jiangyang.messages.dubbo: INFO
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+    lazy-initialization: false
+  autoconfigure:
+    exclude: []
+  config:
+    import:
+      - optional:classpath:application-message-service.yml
+
+# 服务配置
+service:
+  name: messages-service
+  version: 1.0.0
+

@@ -1,0 +1,16 @@
+# 缓存配置
+signature:
+  cache:
+    redis:
+      enabled: true  # 启用Redis缓存
+      # 如果设置为false，将使用内存缓存
+
+# Spring配置
+spring:
+  main:
+    allow-bean-definition-overriding: true  # 允许Bean覆盖（备选方案）
+  cache:
+    type: redis  # 指定缓存类型为Redis
+    redis:
+      time-to-live: 1800000  # 默认过期时间：30分钟
+      cache-null-values: false  # 不缓存null值

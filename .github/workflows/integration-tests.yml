@@ -1,0 +1,410 @@
+name: 江阳AI微服务集成测试
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每天凌晨2点执行一次完整测试
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_environment:
+        description: '测试环境 (local/test/staging)'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+        - local
+        - test
+        - staging
+      test_services:
+        description: '要测试的服务 (逗号分隔，留空测试所有)'
+        required: false
+        default: ''
+      parallel_execution:
+        description: '是否并行执行测试'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: '-Xmx2048m'
+  ALLURE_VERSION: '2.24.0'
+
+jobs:
+  # 代码质量检查
+  code-quality:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        
+    - name: 缓存Maven依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 编译项目
+      run: |
+        mvn clean compile -DskipTests
+        
+    - name: 运行代码质量检查
+      run: |
+        mvn checkstyle:check
+        mvn spotbugs:check
+        
+    - name: 上传代码质量报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: code-quality-reports
+        path: |
+          target/checkstyle-result.xml
+          target/spotbugsXml.xml
+
+  # 单元测试
+  unit-tests:
+    name: 单元测试
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        
+    - name: 缓存Maven依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 运行单元测试
+      run: |
+        mvn test -Dtest=*UnitTest
+        
+    - name: 上传单元测试报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: unit-test-reports
+        path: target/surefire-reports/
+
+  # 服务健康检查
+  service-health-check:
+    name: 服务健康检查
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: jiangyangai_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          
+      redis:
+        image: redis:6.0-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 等待服务就绪
+      run: |
+        # 等待MySQL就绪
+        for i in {1..30}; do
+          if mysqladmin ping -h127.0.0.1 -P3306 -uroot -ptestpassword --silent; then
+            echo "MySQL is ready"
+            break
+          fi
+          echo "Waiting for MySQL..."
+          sleep 2
+        done
+        
+        # 等待Redis就绪
+        for i in {1..30}; do
+          if redis-cli -h 127.0.0.1 -p 6379 ping | grep -q PONG; then
+            echo "Redis is ready"
+            break
+          fi
+          echo "Waiting for Redis..."
+          sleep 2
+        done
+        
+    - name: 验证服务连接
+      run: |
+        echo "MySQL连接测试..."
+        mysql -h127.0.0.1 -P3306 -uroot -ptestpassword -e "SELECT 1" jiangyangai_test
+        
+        echo "Redis连接测试..."
+        redis-cli -h 127.0.0.1 -p 6379 set test_key test_value
+        redis-cli -h 127.0.0.1 -p 6379 get test_key
+
+  # 集成测试矩阵
+  integration-tests:
+    name: 集成测试 (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    needs: [unit-tests, service-health-check]
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        service: 
+          - signature-service
+          - gateway-service
+          - bgai-service
+          - messages-service
+          - chat-agent
+          - deepSearch-service
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: jiangyangai_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          
+      redis:
+        image: redis:6.0-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        
+    - name: 缓存Maven依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 设置测试环境变量
+      run: |
+        echo "TEST_ENV=${{ github.event.inputs.test_environment || 'test' }}" >> $GITHUB_ENV
+        echo "TEST_PARALLEL=${{ github.event.inputs.parallel_execution || 'false' }}" >> $GITHUB_ENV
+        echo "TEST_SERVICE=${{ matrix.service }}" >> $GITHUB_ENV
+        echo "MYSQL_URL=jdbc:mysql://localhost:3306/jiangyangai_test" >> $GITHUB_ENV
+        echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
+        
+    - name: 初始化测试数据库
+      run: |
+        mysql -h127.0.0.1 -P3306 -uroot -ptestpassword jiangyangai_test << EOF
+        CREATE TABLE IF NOT EXISTS test_users (
+          id BIGINT PRIMARY KEY AUTO_INCREMENT,
+          name VARCHAR(100) NOT NULL,
+          email VARCHAR(100) UNIQUE,
+          source VARCHAR(50) DEFAULT 'integration-test',
+          created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS test_api_keys (
+          id BIGINT PRIMARY KEY AUTO_INCREMENT,
+          key_id VARCHAR(100) NOT NULL,
+          api_key VARCHAR(200) NOT NULL,
+          source VARCHAR(50) DEFAULT 'integration-test',
+          created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        EOF
+        
+    - name: 运行服务集成测试
+      run: |
+        mvn test \
+          -Dtest.env=${{ env.TEST_ENV }} \
+          -Dtest.parallel=${{ env.TEST_PARALLEL }} \
+          -Dtest.include.tags=${{ matrix.service }} \
+          -Dtest.database.url=${{ env.MYSQL_URL }} \
+          -Dtest.redis.url=${{ env.REDIS_URL }} \
+          -Dtest=JiangYangAIIntegrationTests#test*Service
+          
+    - name: 生成Allure报告
+      if: always()
+      run: |
+        curl -o allure-commandline.zip -LO "https://github.com/allure-framework/allure2/releases/download/${{ env.ALLURE_VERSION }}/allure-commandline-${{ env.ALLURE_VERSION }}.zip"
+        unzip allure-commandline.zip
+        ./allure-${{ env.ALLURE_VERSION }}/bin/allure generate target/allure-results --clean -o target/allure-report
+        
+    - name: 上传测试报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: ${{ matrix.service }}-test-reports
+        path: |
+          target/allure-report/
+          target/surefire-reports/
+        retention-days: 30
+
+  # 端到端测试
+  end-to-end-tests:
+    name: 端到端测试
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: jiangyangai_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+          
+      redis:
+        image: redis:6.0-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        
+    - name: 缓存Maven依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: 运行端到端测试
+      run: |
+        mvn test \
+          -Dtest.env=${{ github.event.inputs.test_environment || 'test' }} \
+          -Dtest.parallel=true \
+          -Dtest.retries=2 \
+          -Dtest=JiangYangAIIntegrationTests#testEndToEndScenarios
+          
+    - name: 生成综合报告
+      if: always()
+      run: |
+        curl -o allure-commandline.zip -LO "https://github.com/allure-framework/allure2/releases/download/${{ env.ALLURE_VERSION }}/allure-commandline-${{ env.ALLURE_VERSION }}.zip"
+        unzip allure-commandline.zip
+        ./allure-${{ env.ALLURE_VERSION }}/bin/allure generate target/allure-results --clean -o target/allure-report
+        
+    - name: 上传端到端测试报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-reports
+        path: target/allure-report/
+        retention-days: 30
+
+  # 性能测试
+  performance-tests:
+    name: 性能测试
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && contains(github.event.inputs.test_services, 'performance'))
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        
+    - name: 运行性能测试
+      run: |
+        mvn test \
+          -Dtest.env=test \
+          -Dtest.include.tags=performance \
+          -Dtest.parallel=true \
+          -Dtest.timeout=300000
+          
+    - name: 上传性能测试报告
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-reports
+        path: target/allure-report/
+
+  # 发布测试报告
+  publish-reports:
+    name: 发布测试报告
+    runs-on: ubuntu-latest
+    needs: [integration-tests, end-to-end-tests]
+    if: always()
+    
+    steps:
+    - name: 下载所有测试报告
+      uses: actions/download-artifact@v3
+      with:
+        path: test-reports/
+        
+    - name: 合并测试报告
+      run: |
+        mkdir -p merged-reports/allure-results
+        find test-reports/ -name "allure-results" -type d -exec cp -r {}/* merged-reports/allure-results/ \;
+        
+    - name: 生成合并的Allure报告
+      run: |
+        curl -o allure-commandline.zip -LO "https://github.com/allure-framework/allure2/releases/download/${{ env.ALLURE_VERSION }}/allure-commandline-${{ env.ALLURE_VERSION }}.zip"
+        unzip allure-commandline.zip
+        ./allure-${{ env.ALLURE_VERSION }}/bin/allure generate merged-reports/allure-results --clean -o final-report
+        
+    - name: 部署测试报告到GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./final-report
+        destination_dir: test-reports/${{ github.run_number }}
+        
+    - name: 通知测试结果
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ 所有测试通过"
+        else
+          echo "❌ 测试失败"
+        fi

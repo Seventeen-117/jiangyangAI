@@ -1,0 +1,39 @@
+# 异步验证配置
+signature:
+  async-validation:
+    enabled: true
+    timeout: 5000  # 验证超时时间（毫秒）
+    max-concurrency: 10  # 最大并发验证数
+    enable-metrics: true  # 启用验证指标收集
+
+# 验证规则配置
+validation:
+  rules:
+    async-validation:
+      enabled: true
+      rule-code: "ASYNC_VALIDATION"
+      description: "异步验证规则"
+      config:
+        timeout: 5000
+        max-concurrency: 10
+        enable-fallback: true
+
+# 路径配置
+path:
+  async-validation:
+    excluded-paths:
+      - "/actuator/**"
+      - "/health/**"
+      - "/metrics/**"
+      - "/public/**"
+      - "/api/validation/**"
+      - "/swagger-ui/**"
+      - "/v3/api-docs/**"
+      - "/api/async-validation/**"
+
+# 日志配置
+logging:
+  level:
+    com.signature.service.AsyncValidationService: DEBUG
+    com.signature.filter.AsyncValidationFilter: DEBUG
+    com.signature.controller.AsyncValidationController: DEBUG

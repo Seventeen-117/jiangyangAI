@@ -1,0 +1,23 @@
+# 自动识别文本文件
+* text=auto
+
+# 强制特定文件为文本格式
+*.md text
+*.yml text
+*.yaml text
+*.json text
+*.xml text
+*.html text
+*.css text
+*.js text
+*.java text
+*.properties text
+
+# 强制特定文件为二进制格式
+*.jar binary
+*.war binary
+*.class binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary

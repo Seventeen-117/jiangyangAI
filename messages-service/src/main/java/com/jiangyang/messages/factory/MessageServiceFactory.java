@@ -1,0 +1,105 @@
+package com.jiangyang.messages.factory;
+
+import com.jiangyang.messages.config.MessageServiceConfig;
+import com.jiangyang.messages.utils.MessageServiceException;
+import com.jiangyang.messages.consume.MessageServiceType;
+import com.jiangyang.messages.kafka.KafkaMessageService;
+import com.jiangyang.messages.rabbitmq.RabbitMQMessageService;
+import com.jiangyang.messages.rocketmq.RocketMQTemplateService;
+import com.jiangyang.messages.service.MessageService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * 消息服务工厂类
+ * 根据配置选择不同的消息中间件实现
+ */
+@Slf4j
+@Component
+public class MessageServiceFactory {
+
+    @Autowired
+    private MessageServiceConfig config;
+
+    @Autowired(required = false)
+    private RocketMQTemplateService rocketMQMessageService;
+
+    @Autowired(required = false)
+    private KafkaMessageService kafkaMessageService;
+
+    @Autowired(required = false)
+    private RabbitMQMessageService rabbitMQMessageService;
+
+    /**
+     * 获取默认的消息服务
+     * @return 消息服务
+     */
+    public MessageService getDefaultMessageService() {
+        return getMessageService(MessageServiceType.valueOf(config.getCommon().getDefaultType().toUpperCase()));
+    }
+
+    /**
+     * 根据类型获取消息服务
+     * @param type 消息服务类型
+     * @return 消息服务
+     */
+    public MessageService getMessageService(MessageServiceType type) {
+        switch (type) {
+            case ROCKETMQ:
+                if (rocketMQMessageService == null) {
+                    throw new MessageServiceException("RocketMQ service is not available");
+                }
+                if (!config.getRocketmq().getEnabled()) {
+                    log.warn("RocketMQ service is not enabled, using it may cause issues");
+                }
+                return rocketMQMessageService;
+            case KAFKA:
+                if (kafkaMessageService == null) {
+                    throw new MessageServiceException("Kafka service is not available");
+                }
+                if (!config.getKafka().getEnabled()) {
+                    log.warn("Kafka service is not enabled, using it may cause issues");
+                }
+                return kafkaMessageService;
+            case RABBITMQ:
+                if (rabbitMQMessageService == null) {
+                    throw new MessageServiceException("RabbitMQ service is not available");
+                }
+                if (!config.getRabbitmq().getEnabled()) {
+                    log.warn("RabbitMQ service is not enabled, using it may cause issues");
+                }
+                return rabbitMQMessageService;
+            default:
+                throw new MessageServiceException("Unsupported message service type: " + type);
+        }
+    }
+
+    /**
+     * 检查某种类型的消息服务是否可用
+     * @param type 消息服务类型
+     * @return 是否可用
+     */
+    public boolean isServiceAvailable(MessageServiceType type) {
+        switch (type) {
+            case ROCKETMQ:
+                boolean rocketMQAvailable = rocketMQMessageService != null && config.getRocketmq().getEnabled();
+                log.debug("RocketMQ服务可用性检查: service={}, enabled={}, available={}", 
+                         rocketMQMessageService != null, config.getRocketmq().getEnabled(), rocketMQAvailable);
+                return rocketMQAvailable;
+            case KAFKA:
+                boolean kafkaAvailable = kafkaMessageService != null && config.getKafka().getEnabled();
+                log.debug("Kafka服务可用性检查: service={}, enabled={}, available={}", 
+                         kafkaMessageService != null, config.getKafka().getEnabled(), kafkaAvailable);
+                return kafkaAvailable;
+            case RABBITMQ:
+                boolean rabbitMQAvailable = rabbitMQMessageService != null && config.getRabbitmq().getEnabled();
+                log.debug("RabbitMQ服务可用性检查: service={}, enabled={}, available={}", 
+                         rabbitMQMessageService != null, config.getRabbitmq().getEnabled(), rabbitMQAvailable);
+                return rabbitMQAvailable;
+            default:
+                log.debug("不支持的消息服务类型: {}", type);
+                return false;
+        }
+    }
+}

@@ -1,0 +1,73 @@
+# 开发环境配置
+
+# 服务配置 - 开发环境
+service:
+  ai-agent:
+    base-url: http://localhost:8080
+    timeout: 30000
+  bgai:
+    base-url: http://localhost:8081
+    timeout: 30000
+
+# 数据源配置 - 开发环境
+spring:
+  datasource:
+    dynamic:
+      enabled: true
+      primary: master
+      strict: false
+      seata: false  # 禁用Seata分布式事务
+      
+      datasource:
+        # 主数据源
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://8.133.246.113:3306/deepsearch_service?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+          username: bgtech
+          password: Zly689258..
+          type: com.alibaba.druid.pool.DruidDataSource
+          pool:
+            initial-size: 5
+            min-idle: 10
+            max-active: 20
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            filters: stat,wall
+        
+        # 从数据源
+        slave:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://8.133.246.113:3306/deepsearch_service?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+          username: bgtech
+          password: Zly689258..
+          type: com.alibaba.druid.pool.DruidDataSource
+          pool:
+            initial-size: 5
+            min-idle: 10
+            max-active: 20
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            filters: stat,wall
+
+# Seata配置 - 禁用分布式事务但提供必要的配置避免验证错误
+seata:
+  enabled: false
+  auto-data-source-proxy: false
+  enable-auto-data-source-proxy: false
+  disable-global-transaction: true
+
+# 日志配置 - 开发环境
+logging:
+  level:
+    # 应用相关日志
+    com.jiangyang.datacalculation: DEBUG
+    com.jiangyang.base: WARN
+    # Spring Cloud相关日志
+    org.springframework.cloud.openfeign: WARN
+    org.springframework.web: WARN
+    org.springframework.cloud.nacos: WARN
+    # 禁用条件评估报告
+    org.springframework.boot.autoconfigure.condition: OFF
+    org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener: OFF

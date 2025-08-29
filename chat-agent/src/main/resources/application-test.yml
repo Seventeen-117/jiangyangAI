@@ -1,0 +1,69 @@
+# Chat-Agent 测试环境配置
+
+spring:
+  datasource:
+    dynamic:
+      enabled: true
+      seata: false
+      primary: master
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/chat_agent?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+          username: root
+          password: root
+          type: com.alibaba.druid.pool.DruidDataSource
+          pool:
+            initial-size: 1
+            min-idle: 1
+            max-active: 5
+            max-wait: 10000
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 300000
+            validation-query: SELECT 1
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            filters: stat,wall
+            connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+# Seata配置 - 禁用分布式事务但提供必要的配置避免验证错误
+seata:
+  enabled: false
+  auto-data-source-proxy: false
+  enable-auto-data-source-proxy: false
+  disable-global-transaction: true
+  # 注册中心配置 - 提供基本配置避免验证错误
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace: ""
+      username: ""
+      password: ""
+  # 配置中心配置 - 提供基本配置避免验证错误
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace: ""
+      username: ""
+      password: ""
+  # 存储配置 - 提供基本配置避免验证错误
+  store:
+    mode: file
+    file:
+      dir: file_store/data
+
+# 日志配置
+logging:
+  level:
+    io.seata: OFF
+    com.jiangyang.base.config: DEBUG
+    com.jiangyang.base.seata.util.SeataConfigValidator: WARN  # 降低Seata配置验证器的日志级别
+    org.springframework.ai: DEBUG
+    root: INFO
