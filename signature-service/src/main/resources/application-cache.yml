@@ -1,16 +1,360 @@
-# 缓存配置
-signature:
-  cache:
-    redis:
-      enabled: true  # 启用Redis缓存
-      # 如果设置为false，将使用内存缓存
 
-# Spring配置
 spring:
-  main:
-    allow-bean-definition-overriding: true  # 允许Bean覆盖（备选方案）
   cache:
     type: redis  # 指定缓存类型为Redis
     redis:
       time-to-live: 1800000  # 默认过期时间：30分钟
       cache-null-values: false  # 不缓存null值
+  application:
+    name: signature-service
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true  # 允许Bean覆盖（备选方案）
+    # Jackson 时间格式配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
+  # 数据库配置
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000        # 10m
+      max-lifetime: 1800000       # 30m (must be < DB wait_timeout)
+      keepalive-time: 300000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.133.246.113:3306/deepseek?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&useSSL=false
+    username: bgtech
+    password: Zly689258..
+    dynamic:
+      primary: master
+      strict: false
+      seata: true    # 开启seata代理
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://8.133.246.113:3306/deepseek?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&useSSL=false
+          username: bgtech
+          password: Zly689258..
+          type: com.alibaba.druid.pool.DruidDataSource
+          druid:
+            initial-size: 5
+            min-idle: 10
+            max-active: 20
+            max-wait: 60000
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 300000
+            validation-query: SELECT 1 FROM DUAL
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            filters: stat,wall
+            connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+        slave:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://8.133.246.113:3306/seata?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&useSSL=false
+          username: bgtech
+          password: Zly689258..
+          type: com.alibaba.druid.pool.DruidDataSource
+          druid:
+            initial-size: 5
+            min-idle: 10
+            max-active: 20
+            max-wait: 60000
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 300000
+            validation-query: SELECT 1 FROM DUAL
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            pool-prepared-statements: true
+            max-pool-prepared-statement-per-connection-size: 20
+            filters: stat,wall
+            connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  # Redis配置
+  data:
+    redis:
+      host: 8.133.246.113
+      port: 6379
+      password: 5z25u2sk
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # Elasticsearch配置
+  elasticsearch:
+    uris: http://8.133.246.113:9200
+    connection-timeout: 30s
+    socket-timeout: 30s
+    username: elastic
+    password: elastic123
+    # 禁用SSL验证（如果需要）
+    ssl:
+      verification-mode: none
+
+  # 禁用Nacos配置
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+      config:
+        enabled: true
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:mapper/*.xml
+
+# Feign配置
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: full
+# SSO 配置
+sso:
+  client-id: bgai-client-id
+  client-secret: bgai-client-secret
+  redirect-uri: http://localhost:8080/api/auth/callback
+  authorize-url: http://localhost:8080/auth/authorize
+  token-url: http://localhost:8080/auth/token
+  user-info-url: http://localhost:8080/auth/userinfo
+  logout-url: http://localhost:8080/auth/logout
+  # SSO 会话配置
+  session:
+    timeout: 3600  # 会话超时时间（秒）
+    max-sessions: 1000  # 最大会话数
+  # SSO 安全配置
+  security:
+    jwt-secret: jiangyang-sso-secret-key-2024-for-development-only-change-in-production
+    jwt-expiration: 3600000  # JWT过期时间（毫秒）
+    refresh-token-expiration: 86400000  # 刷新令牌过期时间（毫秒）
+  # SSO 回调配置
+  callback:
+    success-url: http://localhost:3000/dashboard
+    failure-url: http://localhost:3000/login?error=authentication_failed
+    logout-success-url: http://localhost:3000/login
+
+# API 安全配置
+api:
+  security:
+    header-name: X-API-Key
+    api-keys:
+      "804822262af64439aeab611143864948": "client-1"
+      "fdac4b850ba74f8f86338d3c445a88f5": "client-2"
+    # API 限流配置
+    rate-limit:
+      enabled: true
+      default-limit: 100  # 默认每分钟请求数
+      burst-capacity: 200  # 突发容量
+    # API 权限配置
+    permissions:
+      client-1:
+        - "read:user"
+        - "write:user"
+        - "read:chat"
+        - "write:chat"
+      client-2:
+        - "read:user"
+        - "read:chat"
+    # API 审计配置
+    audit:
+      enabled: true
+      log-requests: true
+      log-responses: false
+      sensitive-headers:
+        - "Authorization"
+        - "X-API-Key"
+
+# 签名验证配置
+signature:
+  async-validation:
+    enabled: true
+    timeout: 5000  # 验证超时时间（毫秒）
+    max-concurrency: 10  # 最大并发验证数
+    enable-metrics: true  # 启用验证指标收集
+
+  cache:
+    redis:
+      enabled: true  # 启用Redis缓存
+  enabled: true
+  timestamp-expire-seconds: 300
+  nonce-cache-expire-seconds: 1800
+  app-secret-cache-expire-seconds: 3600
+  # 签名验证过滤器配置
+  verification:
+    enabled: false  # 禁用签名验证过滤器，允许直接访问签名生成接口
+    timestamp-expire-seconds: 300
+    nonce-cache-expire-seconds: 1800
+    excluded-paths:
+      - "/actuator/**"
+      - "/health/**"
+      - "/api/auth/**"
+      - "/api/public/**"
+      - "/api/signature/**"
+      - "/api/token/**"
+      - "/api/keys/**"
+      - "/api/validation/**"
+  # 异步验证配置
+  async:
+    enabled: true
+    mode: HYBRID
+    timeout: 5000
+  # 批量验证配置
+  batch:
+    enabled: false
+    max-batch-size: 100
+    timeout: 10000
+  # API Key验证配置
+  api-key:
+    enabled: false  # 禁用API Key验证，允许直接访问
+    header-name: X-API-Key
+    test-key: test-api-key-123
+    strict-validation: false
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      # 禁用Elasticsearch健康检查
+      defaults:
+        enabled: true
+  health:
+    elasticsearch:
+      enabled: false
+    elasticsearch-reactive:
+      enabled: false
+
+# 日志配置
+logging:
+  level:
+    org.apache.dubbo: INFO
+    com.jiangyang.dubbo: DEBUG
+    com.bgpay.signature: DEBUG
+    org.springframework.web: DEBUG
+    com.alibaba.nacos: OFF  # 禁用Nacos日志
+    io.seata: OFF  # 禁用Seata日志
+    com.netflix.eureka: OFF  # 禁用Eureka日志
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 禁用Seata分布式事务
+seata:
+  enabled: false
+  saga:
+    enabled: false
+    state-machine:
+      auto-register: false
+      enabled: false
+saga:
+  enabled: false
+
+# 禁用Eureka客户端
+eureka:
+  client:
+    enabled: false
+  instance:
+    enabled: false
+# Dubbo 配置
+dubbo:
+  application:
+    name: signature-service
+    version: 1.0.0
+    owner: jiangyang
+    organization: jiangyang-tech
+
+  # 注册中心配置
+  registry:
+    address: nacos://8.133.246.113:8848
+    namespace: dubbo
+    group: DEFAULT_GROUP
+    timeout: 10000
+
+  # 协议配置
+  protocol:
+    name: dubbo
+    port: 20889
+    host: localhost
+    threads: 200
+    iothreads: 4
+    accepts: 1000
+    payload: 8388608  # 8MB
+
+  # 提供者配置
+  provider:
+    timeout: 5000
+    retries: 0
+    loadbalance: roundrobin
+    cluster: failfast
+    serialization: fastjson2
+
+  # 监控配置
+  monitor:
+    protocol: registry
+
+  # 配置中心
+  config-center:
+    address: nacos://8.133.246.113:8848
+    namespace: dubbo-config
+    group: DEFAULT_GROUP
+
+  # 元数据中心
+  metadata-report:
+    address: nacos://8.133.246.113:8848
+    namespace: dubbo-metadata
+    group: DEFAULT_GROUP
+
+# 验证规则配置
+validation:
+  rules:
+    async-validation:
+      enabled: true
+      rule-code: "ASYNC_VALIDATION"
+      description: "异步验证规则"
+      config:
+        timeout: 5000
+        max-concurrency: 10
+        enable-fallback: true
+
+# 路径配置
+path:
+  async-validation:
+    excluded-paths:
+      - "/actuator/**"
+      - "/health/**"
+      - "/metrics/**"
+      - "/public/**"
+      - "/api/validation/**"
+      - "/swagger-ui/**"
+      - "/v3/api-docs/**"
+      - "/api/async-validation/**"

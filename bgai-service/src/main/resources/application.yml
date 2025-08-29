@@ -30,52 +30,6 @@ spring:
   application:
     name: bgai-service
 
-# Dubbo配置
-dubbo:
-  application:
-    name: ${spring.application.name}
-    version: 1.0.0
-    logger: slf4j
-  registry:
-    address: nacos://${NACOS_HOST:8.133.246.113}:${NACOS_PORT:8848}
-    group: ${NACOS_GROUP:DEFAULT_GROUP}
-    namespace: ${NACOS_NAMESPACE:d750d92e-152f-4055-a641-3bc9dda85a29}
-    timeout: 10000
-    check: false
-  protocol:
-    name: dubbo
-    port: -1
-    serialization: hessian2
-    threads: 200
-    accepts: 1000
-    heartbeat: 60000
-  consumer:
-    timeout: 5000
-    retries: 2
-    check: false
-    loadbalance: roundrobin
-    cluster: failover
-    connections: 1
-  provider:
-    timeout: 10000  # AI服务处理时间较长
-    retries: 0
-    threads: 500    # AI服务需要更多线程
-    accepts: 2000   # AI服务需要更大连接数
-  scan:
-    base-packages: com.bgpay.bgai
-  # 服务治理配置
-  governance:
-    enabled: true
-  metadata-report:
-    enabled: ${DUBBO_METADATA_REPORT_ENABLED:true}
-    retry-times: 3
-    retry-period: 5000
-  metrics:
-    enabled: ${DUBBO_METRICS_ENABLED:false}
-    protocol: prometheus
-    port: 28081  # bgai-service专用监控端口
-    enable-jvm: true
-
 # 日志配置
 logging:
   level:
