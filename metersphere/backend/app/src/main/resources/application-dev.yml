@@ -1,0 +1,100 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: metersphere
+  
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # Redis 配置
+  data:
+    redis:
+      host: 8.133.246.113
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+  
+  # MinIO 配置
+  minio:
+    endpoint: http://8.133.246.113:9000
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: metersphere
+  
+  # Kafka 配置
+  kafka:
+    bootstrap-servers: 8.133.246.113:9092
+    consumer:
+      group-id: metersphere-group
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+# MyBatis Plus 配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:mapper/*.xml
+
+# 日志配置
+logging:
+  level:
+    io.metersphere: DEBUG
+    org.springframework: INFO
+    com.alibaba.nacos: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/metersphere.log
+    max-size: 100MB
+    max-history: 30
+
+# JMeter 配置
+jmeter:
+  home: /opt/apache-jmeter
+  report:
+    path: /opt/metersphere/reports
+    retention: 30
+
+# 系统配置
+system:
+  # 文件上传路径
+  upload:
+    path: /opt/metersphere/upload
+    max-size: 100MB
+  # 临时文件路径
+  temp:
+    path: /opt/metersphere/temp
+  # 日志路径
+  log:
+    path: /opt/metersphere/logs

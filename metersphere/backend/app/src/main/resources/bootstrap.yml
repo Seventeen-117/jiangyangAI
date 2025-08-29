@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: metersphere
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:8.133.246.113}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:d750d92e-152f-4055-a641-3bc9dda85a29}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
+        # 启用服务发现
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+        # 注册服务实例
+        register-enabled: true
+        # 心跳间隔
+        heart-beat-interval: 5000
+        # 心跳超时
+        heart-beat-timeout: 15000
+        # IP删除超时
+        ip-delete-timeout: 30000
+        # 实例权重
+        weight: 1
+        # 是否临时实例
+        ephemeral: true
+        # 元数据
+        metadata:
+          version: ${revision:3.x}
+          zone: ${ZONE:default}
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        file-extension: yaml
+        # 启用配置中心
+        enabled: ${NACOS_CONFIG_ENABLED:true}
+        # 配置刷新
+        refresh-enabled: true
+        # 配置超时
+        timeout: 10000
+        # 配置重试
+        retry-time: 20000
+        # 长轮询超时
+        long-poll-timeout: 46000
+        # 配置监听器
+        config-long-poll-timeout: 46000
+        # 配置重试时间
+        config-retry-time: 20000
+        # 最大重试次数
+        max-retry: 3
+        # 启用自动刷新
+        enable-remote-sync-config: true
+        # 共享配置
+        shared-configs:
+          - data-id: metersphere-common-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: ${spring.cloud.nacos.discovery.group}
+            refresh: true
+        # 扩展配置
+        extension-configs:
+          - data-id: metersphere-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: ${spring.cloud.nacos.discovery.group}
+            refresh: true
+
+# 配置文件
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+# 日志配置
+logging:
+  level:
+    com.alibaba.nacos: DEBUG
+    com.alibaba.cloud: DEBUG
+    org.springframework.cloud: DEBUG

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.neo4j.Neo4jAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(exclude = {
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.PropertySource;
         "file:/opt/metersphere/conf/metersphere.properties",
 }, encoding = "UTF-8", ignoreResourceNotFound = true)
 @ServletComponentScan
+@EnableDiscoveryClient
 @EnableConfigurationProperties({
         MinioProperties.class,
         JmeterProperties.class

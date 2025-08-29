@@ -89,6 +89,11 @@
         <spring-ai.version>1.0.0</spring-ai.version>
         <ansj_seg.version>5.1.6</ansj_seg.version>
         <flex-mark.version>0.64.0</flex-mark.version>
+        
+        <!-- Spring Cloud 版本 -->
+        <spring-cloud.version>2023.0.4</spring-cloud.version>
+        <!-- Nacos 版本 -->
+        <nacos.version>2021.0.5.0</nacos.version>
     </properties>
 
     <modules>
@@ -241,6 +246,24 @@
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
                 <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Spring Cloud Dependencies BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Spring Cloud Alibaba Dependencies BOM -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${nacos.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
