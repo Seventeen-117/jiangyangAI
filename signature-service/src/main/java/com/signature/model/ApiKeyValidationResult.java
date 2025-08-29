@@ -1,5 +1,6 @@
 package com.signature.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.signature.enums.ApiKeyStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class ApiKeyValidationResult {
     /**
      * 过期时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiresAt;
     
     /**
@@ -48,6 +50,7 @@ public class ApiKeyValidationResult {
     /**
      * 验证时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime validationTime;
     
     /**

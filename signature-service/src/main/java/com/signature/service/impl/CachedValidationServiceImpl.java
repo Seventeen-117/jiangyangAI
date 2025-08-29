@@ -106,22 +106,26 @@ public class CachedValidationServiceImpl implements ValidationService {
         }
 
         try {
-            // 1. 先从缓存获取
+            // 1. 先从缓存获取（使用原始API Key作为缓存键）
+            log.info("Checking cache for API Key: {}", apiKey);
             ApiKey cachedApiKey = cacheService.getApiKeyFromCache(apiKey);
             if (cachedApiKey != null) {
-                log.debug("API Key found in cache: {}", apiKey);
+                log.info("API Key found in cache: {}", apiKey);
                 return buildApiKeyValidationResult(cachedApiKey);
             }
+            log.info("API Key not found in cache, querying database: {}", apiKey);
 
-            // 2. 缓存未命中，从数据库查询
+            // 2. 缓存未命中，从数据库查询（需要先对API Key进行SHA-256哈希）
+            String hashedApiKey = com.signature.utils.Sha256Util.hash(apiKey);
             LambdaQueryWrapper<ApiKey> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ApiKey::getApiKey, apiKey);
+            queryWrapper.eq(ApiKey::getApiKey, hashedApiKey);
             ApiKey dbApiKey = apiKeyMapper.selectOne(queryWrapper);
             
             if (dbApiKey != null) {
-                // 3. 将结果存储到缓存
+                // 3. 将结果存储到缓存（使用原始API Key作为缓存键）
+                log.info("Storing API Key in cache: {}", apiKey);
                 cacheService.cacheApiKey(apiKey, dbApiKey);
-                log.debug("API Key cached from database: {}", apiKey);
+                log.info("API Key cached from database: {}", apiKey);
                 return buildApiKeyValidationResult(dbApiKey);
             }
 

@@ -37,13 +37,16 @@ public class ValidationCacheServiceImpl implements ValidationCacheService {
     @Override
     public ApiKey getApiKeyFromCache(String apiKey) {
         try {
+            String cacheKey = "apiKey:" + apiKey;
+            log.info("Getting API Key from cache with key: {}", cacheKey);
+            
             // 直接从Redis缓存获取
-            Object cached = redisTemplate.opsForValue().get("apiKey:" + apiKey);
+            Object cached = redisTemplate.opsForValue().get(cacheKey);
             if (cached != null) {
-                log.debug("API Key found in cache: {}", apiKey);
+                log.info("API Key found in cache: {}", apiKey);
                 return (ApiKey) cached;
             }
-            log.debug("API Key not found in cache: {}", apiKey);
+            log.info("API Key not found in cache: {}", apiKey);
             return null;
         } catch (Exception e) {
             log.error("Error getting API Key from cache: {}", apiKey, e);
@@ -55,8 +58,9 @@ public class ValidationCacheServiceImpl implements ValidationCacheService {
     public void cacheApiKey(String apiKey, ApiKey apiKeyInfo) {
         try {
             String key = "apiKey:" + apiKey;
+            log.info("Caching API Key with key: {} for 5 minutes", key);
             redisTemplate.opsForValue().set(key, apiKeyInfo, Duration.ofMinutes(5));
-            log.debug("API Key cached: {}", apiKey);
+            log.info("API Key cached successfully: {}", apiKey);
         } catch (Exception e) {
             log.error("Error caching API Key: {}", apiKey, e);
         }
