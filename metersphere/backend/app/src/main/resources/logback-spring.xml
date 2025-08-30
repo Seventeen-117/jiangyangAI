@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
     <property resource="commons.properties"/>
-    <property file="/opt/metersphere/conf/metersphere.properties"/>
+    <!-- 注释掉原来的文件路径配置，现在从Nacos中读取 -->
+    <!-- <property file="/opt/metersphere/conf/metersphere.properties"/> -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d %5p %40.40c:%4L - %m%n</pattern>

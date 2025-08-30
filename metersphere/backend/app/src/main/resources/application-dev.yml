@@ -5,18 +5,45 @@ spring:
   application:
     name: metersphere
   
-  # 数据源配置
+  # 数据源配置 - MySQL 8.0+ 兼容性
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true&defaultFetchSize=1000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    username: ${DB_USERNAME:bgtech}
+    password: ${DB_PASSWORD:Zly689258..}
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 100
+      minimum-idle: 10
       connection-timeout: 30000
-      idle-timeout: 600000
+      idle-timeout: 300000
       max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+  
+  # Flyway配置 - MySQL 8.0+ 兼容性
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:migration
+    table: metersphere_version
+    baseline-version: 0
+    encoding: UTF-8
+    validate-on-migrate: false
+    url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true&defaultFetchSize=1000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+    user: ${DB_USERNAME:bgtech}
+    password: ${DB_PASSWORD:Zly689258..}
+    init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+  
+  # Spring AI配置 - 解决AI模块数据库连接问题
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true&defaultFetchSize=1000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+            username: ${DB_USERNAME:bgtech}
+            password: ${DB_PASSWORD:Zly689258..}
+            driver-class-name: com.mysql.cj.jdbc.Driver
   
   # Redis 配置
   data:

@@ -1,0 +1,59 @@
+spring:
+  datasource:
+    # 主数据源配置
+    url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true
+    username: bgtech
+    password: Zly689258..
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+    # Hikari连接池配置
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 10
+      idle-timeout: 300000
+      auto-commit: true
+      pool-name: DatebookHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      # MySQL 8.0+ 兼容性配置
+      connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+      
+    # Quartz数据源配置
+    quartz:
+      url: ${spring.datasource.url}
+      username: ${spring.datasource.username}
+      password: ${spring.datasource.password}
+      hikari:
+        maximum-pool-size: 50
+        minimum-idle: 10
+        idle-timeout: 300000
+        auto-commit: true
+        pool-name: DatebookHikariCP
+        max-lifetime: 1800000
+        connection-timeout: 30000
+        connection-test-query: SELECT 1
+
+  # Flyway配置
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:migration
+    table: metersphere_version
+    baseline-version: 0
+    encoding: UTF-8
+    validate-on-migrate: false
+    # MySQL 8.0+ 兼容性配置
+    init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+
+# MyBatis配置
+mybatis:
+  configuration:
+    cache-enabled: true
+    lazy-loading-enabled: false
+    aggressive-lazy-loading: true
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    auto-mapping-behavior: full
+    default-statement-timeout: 25000
+    map-underscore-to-camel-case: true

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
 
@@ -90,10 +90,11 @@
         <ansj_seg.version>5.1.6</ansj_seg.version>
         <flex-mark.version>0.64.0</flex-mark.version>
         
-        <!-- Spring Cloud 版本 -->
-        <spring-cloud.version>2023.0.4</spring-cloud.version>
-        <!-- Nacos 版本 -->
-        <nacos.version>2021.0.5.0</nacos.version>
+        <!-- Spring Boot 相关 -->
+        <spring-boot.version>3.2.5</spring-boot.version>
+        <!-- Spring Cloud 相关 -->
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
     </properties>
 
     <modules>
@@ -263,7 +264,7 @@
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>${nacos.version}</version>
+                <version>${spring-cloud-alibaba.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -1,16 +1,14 @@
 spring:
-  application:
-    name: metersphere
   cloud:
     nacos:
       discovery:
         server-addr: ${NACOS_HOST:8.133.246.113}:${NACOS_PORT:8848}
         namespace: ${NACOS_NAMESPACE:d750d92e-152f-4055-a641-3bc9dda85a29}
         group: ${NACOS_GROUP:DEFAULT_GROUP}
-        # 启用服务发现
-        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+        # 临时禁用服务发现，先让应用启动
+        enabled: false
         # 注册服务实例
-        register-enabled: true
+        register-enabled: false
         # 心跳间隔
         heart-beat-interval: 5000
         # 心跳超时
@@ -25,15 +23,17 @@ spring:
         metadata:
           version: ${revision:3.x}
           zone: ${ZONE:default}
+        # 强制使用HTTP传输 - 系统属性优先级最高
+        transport: ${NACOS_TRANSPORT_TYPE:http}
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         namespace: ${spring.cloud.nacos.discovery.namespace}
         group: ${spring.cloud.nacos.discovery.group}
         file-extension: yaml
-        # 启用配置中心
-        enabled: ${NACOS_CONFIG_ENABLED:true}
+        # 临时禁用配置中心，避免gRPC问题
+        enabled: false
         # 配置刷新
-        refresh-enabled: true
+        refresh-enabled: false
         # 配置超时
         timeout: 10000
         # 配置重试
@@ -47,10 +47,15 @@ spring:
         # 最大重试次数
         max-retry: 3
         # 启用自动刷新
-        enable-remote-sync-config: true
+        enable-remote-sync-config: false
+        # 强制使用HTTP传输 - 系统属性优先级最高
+        transport: ${NACOS_TRANSPORT_TYPE:http}
         # 共享配置
         shared-configs:
           - data-id: metersphere-common-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: ${spring.cloud.nacos.discovery.group}
+            refresh: true
+          - data-id: metersphere-properties-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
             group: ${spring.cloud.nacos.discovery.group}
             refresh: true
         # 扩展配置
@@ -58,10 +63,18 @@ spring:
           - data-id: metersphere-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
             group: ${spring.cloud.nacos.discovery.group}
             refresh: true
+          - data-id: metersphere-database-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+            group: ${spring.cloud.nacos.discovery.group}
+            refresh: true
 
-# 配置文件
+  # 配置文件
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # Redisson配置 - 解决Redis连接问题
+  redis:
+    redisson:
+      file: classpath:redisson.yml
 
 # 日志配置
 logging:
@@ -69,3 +82,17 @@ logging:
     com.alibaba.nacos: DEBUG
     com.alibaba.cloud: DEBUG
     org.springframework.cloud: DEBUG
+
+# Netty配置 - 解决Java 21兼容性问题
+netty:
+  tryReflectionSetAccessible: true
+  noUnsafe: true
+  noJdkZlibDecoder: true
+  noJdkZlibEncoder: true
+  noJdkZlib: true
+
+# MinIO配置 - 解决MinIO连接问题
+minio:
+  endpoint: http://8.133.246.113:9000
+  access-key: minioadmin
+  secret-key: minioadmin

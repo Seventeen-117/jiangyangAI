@@ -41,10 +41,10 @@ public class DubboGovernanceConfig {
     private String applicationVersion;
     
     // 元数据报告配置参数
-    @Value("${dubbo.metadata-report.address:nacos://${NACOS_HOST:8.133.246.113}:${NACOS_PORT:8848}}")
+    @Value("${dubbo.metadata-report.address:nacos}")
     private String metadataReportAddress;
     
-    @Value("${dubbo.metadata-report.group:${NACOS_GROUP:DEFAULT_GROUP}}")
+    @Value("${dubbo.metadata-report.group}")
     private String metadataReportGroup;
     
     @Value("${dubbo.metadata-report.retry-times:3}")
