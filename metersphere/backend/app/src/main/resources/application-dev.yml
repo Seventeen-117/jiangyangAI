@@ -45,6 +45,25 @@ spring:
             password: ${DB_PASSWORD:Zly689258..}
             driver-class-name: com.mysql.cj.jdbc.Driver
   
+  # Quartz配置 - 解决Quartz表不存在问题
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always  # 自动创建Quartz表
+      platform: mysql
+    properties:
+      org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      org.quartz.jobStore.tablePrefix: QRTZ_
+      org.quartz.jobStore.isClustered: false
+      org.quartz.jobStore.useProperties: false
+      org.quartz.threadPool.class: org.quartz.simpl.SimpleThreadPool
+      org.quartz.threadPool.threadCount: 10
+      org.quartz.threadPool.threadPriority: 5
+      org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread: true
+      org.quartz.scheduler.instanceName: msScheduler
+      org.quartz.scheduler.instanceId: AUTO
+  
   # Redis 配置
   data:
     redis:

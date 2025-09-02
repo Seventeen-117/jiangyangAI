@@ -116,7 +116,18 @@
         <includeCallerData>true</includeCallerData>
         <appender-ref ref="errorAppender"/>
     </appender>
-
+    <!-- Logstash TCP输出 -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>8.133.246.113:5044</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdc>true</includeMdc>
+            <includeContext>false</includeContext>
+            <customFields>{"app_name":"${springAppName}"}</customFields>
+        </encoder>
+        <keepAliveDuration>5 minutes</keepAliveDuration>
+        <reconnectionDelay>1 second</reconnectionDelay>
+        <writeTimeout>5 seconds</writeTimeout>
+    </appender>
     <appender name="warnAsyncAppender" class="ch.qos.logback.classic.AsyncAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>

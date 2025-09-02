@@ -15,9 +15,7 @@ import org.springframework.context.annotation.PropertySource;
 @SpringBootApplication(exclude = {
         QuartzAutoConfiguration.class,
         LdapAutoConfiguration.class,
-        Neo4jAutoConfiguration.class,
-        // 临时禁用Spring AI的自动配置，避免数据库连接问题
-        org.springframework.ai.model.chat.memory.repository.jdbc.autoconfigure.JdbcChatMemoryRepositoryAutoConfiguration.class
+        Neo4jAutoConfiguration.class
 })
 @PropertySource(value = {
         "classpath:commons.properties",

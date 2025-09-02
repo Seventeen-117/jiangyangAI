@@ -29,6 +29,19 @@
         </encoder>
     </appender>
 
+    <!-- Logstash TCP输出 -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>8.133.246.113:5000</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdc>true</includeMdc>
+            <includeContext>false</includeContext>
+            <customFields>{"app_name":"${springAppName}"}</customFields>
+        </encoder>
+        <keepAliveDuration>5 minutes</keepAliveDuration>
+        <reconnectionDelay>1 second</reconnectionDelay>
+        <writeTimeout>5 seconds</writeTimeout>
+    </appender>
+
     <!-- 自定义日志级别 -->
     <logger name="com.bgpay.bgai" level="DEBUG"/>
     <logger name="com.bgpay.bgai.saga" level="DEBUG"/>
@@ -54,5 +67,6 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="LOGSTASH"/>
     </root>
 </configuration>
