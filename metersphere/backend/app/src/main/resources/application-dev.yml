@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
   application:
@@ -19,6 +19,8 @@ spring:
       max-lifetime: 1800000
       connection-test-query: SELECT 1
       connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+    # 禁用内嵌数据库自动接管，防止落入 HSQLDB
+    embedded-database-connection: none
   
   # Flyway配置 - MySQL 8.0+ 兼容性
   flyway:
@@ -63,6 +65,13 @@ spring:
       org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread: true
       org.quartz.scheduler.instanceName: msScheduler
       org.quartz.scheduler.instanceId: AUTO
+      # 强制 Quartz 使用 MySQL 数据源，而不是内置 HSQLDB
+      org.quartz.jobStore.dataSource: quartz
+      org.quartz.dataSource.quartz.driver: com.mysql.cj.jdbc.Driver
+      org.quartz.dataSource.quartz.URL: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      org.quartz.dataSource.quartz.user: ${DB_USERNAME:bgtech}
+      org.quartz.dataSource.quartz.password: ${DB_PASSWORD:Zly689258..}
+      org.quartz.dataSource.quartz.maxConnections: 10
   
   # Redis 配置
   data:

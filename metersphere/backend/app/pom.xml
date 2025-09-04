@@ -13,6 +13,17 @@
     <properties>
     </properties>
     <dependencies>
+        <!-- 全局排除 HSQLDB，防止运行期落到内嵌数据库 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hsqldb</groupId>
+                    <artifactId>hsqldb</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-sdk</artifactId>

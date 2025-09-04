@@ -20,7 +20,7 @@ public class KafkaConfig {
 
     @Autowired
     public KafkaConfig(KafkaProperties kafkaProperties) {
-        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(kafkaProperties.buildProducerProperties(null));
+        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(kafkaProperties.buildProducerProperties());
         defaultMap = producerFactory.getConfigurationProperties();
     }
 

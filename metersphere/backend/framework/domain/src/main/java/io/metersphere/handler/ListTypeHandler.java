@@ -4,7 +4,6 @@ package io.metersphere.handler;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.micrometer.common.util.StringUtils;
 import org.apache.ibatis.type.JdbcType;
 
 import java.io.IOException;
@@ -50,7 +48,7 @@ public class ListTypeHandler extends BaseTypeHandler<List<String>>{
     }
 
     private List<String> getResults(String values) {
-        if (StringUtils.isNotBlank(values)) {
+        if (values != null && !values.trim().isEmpty()) {
             return parseArray(values, String.class);
         }
         return new ArrayList<>();
@@ -61,8 +59,6 @@ public class ListTypeHandler extends BaseTypeHandler<List<String>>{
             .build();
     private static final TypeFactory typeFactory = objectMapper.getTypeFactory();
 
-    public static final int DEFAULT_MAX_STRING_LEN = Integer.MAX_VALUE;
-
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 支持json字符中带注释符
@@ -72,9 +68,6 @@ public class ListTypeHandler extends BaseTypeHandler<List<String>>{
         // 如果一个对象中没有任何的属性，那么在序列化的时候就会报错
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        // 设置JSON处理字符长度限制
-        objectMapper.getFactory()
-                .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(DEFAULT_MAX_STRING_LEN).build());
         // 处理时间格式
         objectMapper.registerModule(new JavaTimeModule());
 

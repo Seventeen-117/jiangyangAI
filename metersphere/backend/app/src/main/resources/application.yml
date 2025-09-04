@@ -1,11 +1,32 @@
-# DeepSearch Service 主配置文件
 spring:
   application:
     name: metersphere
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
-# 服务配置
-service:
-  name: messages-service
-  version: 1.0.0
 
+whitebox:
+  services:
+    urls:
+      signature-service: "http://localhost:8689"
+      bgai-service: "http://localhost:8688"
+      messages-service: "http://localhost:8687"
+      deepsearch-service: "http://localhost:8691"
+      chat-agent: "http://localhost:8690"
+      gateway-service: "http://localhost:8080"
+      base-service: "http://localhost:8686"
+    source-paths:
+      signature-service: "../signature-service/src/main/java"
+      bgai-service: "../bgai-service/src/main/java"
+      chat-agent: "../chat-agent/src/main/java"
+      deepsearch-service: "../deepSearch-service/src/main/java"
+      messages-service: "../messages-service/src/main/java"
+      gateway-service: "../gateway-service/src/main/java"
+      base-service: "../base-service/src/main/java"
+      dubbo-api: "../dubbo-api/src/main/java"
+    class-paths:
+      signature-service: "../signature-service/target/classes"
+      bgai-service: "../bgai-service/target/classes"
+      chat-agent: "../chat-agent/target/classes"
+      deepsearch-service: "../deepSearch-service/target/classes"
+      messages-service: "../messages-service/target/classes"
+      gateway-service: "../gateway-service/target/classes"
+      base-service: "../base-service/target/classes"
+      dubbo-api: "../dubbo-api/target/classes"
