@@ -14,7 +14,18 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
-    
+    <!-- Logstash TCP输出 -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>8.133.246.113:5000</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdc>true</includeMdc>
+            <includeContext>false</includeContext>
+            <customFields>{"app_name":"${springAppName}"}</customFields>
+        </encoder>
+        <keepAliveDuration>5 minutes</keepAliveDuration>
+        <reconnectionDelay>1 second</reconnectionDelay>
+        <writeTimeout>5 seconds</writeTimeout>
+    </appender>
     <!-- 文件输出配置 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/aiAgent-service.log</file>
