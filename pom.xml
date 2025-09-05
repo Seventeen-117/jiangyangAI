@@ -146,6 +146,7 @@
 		<aspectjweaver.version>1.9.21.1</aspectjweaver.version>
 		<spring-boot-starter-logging.version>3.2.5</spring-boot-starter-logging.version>
 		<spring-boot-starter-data-elasticsearch.version>3.2.5</spring-boot-starter-data-elasticsearch.version>
+		<lombok.version>1.18.38</lombok.version>
 	</properties>
 
 	<dependencyManagement>
@@ -154,7 +155,7 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-framework-bom</artifactId>
-				<version>6.1.14</version>
+				<version>6.2.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -162,7 +163,7 @@
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-bom</artifactId>
-				<version>6.3.3</version>
+				<version>6.4.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -355,7 +356,7 @@
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
-				<version>1.18.30</version>
+				<version>${lombok.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<!-- Spring Boot Actuator -->
@@ -1177,6 +1178,23 @@
 					<version>${maven-failsafe-plugin.version}</version>
 					<configuration>
 						<skipITs>${skip.tests}</skipITs>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<release>${java.version}</release>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+						</annotationProcessorPaths>
 					</configuration>
 				</plugin>
 			</plugins>

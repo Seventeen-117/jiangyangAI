@@ -25,7 +25,9 @@ management:
     web:
       exposure:
         include: health,info,dubbo
-
+  endpoint:
+    sessions:
+      enabled: false
 spring:
   application:
     name: bgai-service

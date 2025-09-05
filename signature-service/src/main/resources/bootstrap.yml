@@ -47,7 +47,11 @@ spring:
             # 标记为可选的配置项
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: sessions
 # 禁用Seata分布式事务
 seata:
   enabled: false

@@ -95,9 +95,10 @@ public class NacosRouteConfigListener {
      */
     private void updateRouteDefinitions(String configInfo) {
         try {
-            // 将JSON字符串转换为路由定义列表
-            List<RouteDefinition> routeDefinitions = objectMapper.readValue(
-                    configInfo, new TypeReference<List<RouteDefinition>>() {});
+            // 将JSON字符串转换为路由定义列表（避免匿名内部类导致的 $2 NoClassDefFoundError）
+            com.fasterxml.jackson.databind.JavaType listType =
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, RouteDefinition.class);
+            List<RouteDefinition> routeDefinitions = objectMapper.readValue(configInfo, listType);
             
             log.info("从Nacos加载到{}条路由配置", routeDefinitions.size());
             

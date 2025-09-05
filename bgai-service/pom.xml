@@ -58,12 +58,43 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- 如果需要特殊的依赖，可以在这里添加 -->
+        <!-- If you need special dependencies, add them here -->
 		<!-- Spring WebFlux starter (required for reactive app and Springdoc WebFlux UI) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+			<exclusions>
+				<!-- Exclude spring-session to avoid conflicts -->
+				<exclusion>
+					<groupId>org.springframework.session</groupId>
+					<artifactId>spring-session-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.session</groupId>
+					<artifactId>spring-session-data-redis</artifactId>
+				</exclusion>
+				<!-- Exclude actuator sessions endpoint auto-config if transitively added -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-actuator</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+		<!-- If you don't need Spring Session, remove these dependencies -->
+		<!-- Spring Session (Reactive) backed by Redis -->
+		<!--
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+		</dependency>
+		-->
+		<!-- Redis starter (includes Lettuce and reactive support) -->
+		<!--
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		-->
 		<!-- Springdoc OpenAPI UI for Spring WebFlux -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -76,6 +107,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- Ensure DNS resolver class present for Reactor Netty -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns</artifactId>
 		</dependency>
 		
 		<!-- Jakarta Servlet API (for Spring Boot 3.x compatibility) -->
@@ -90,6 +127,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<!-- Exclude spring-session to avoid conflicts -->
+				<exclusion>
+					<groupId>org.springframework.session</groupId>
+					<artifactId>spring-session-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.session</groupId>
+					<artifactId>spring-session-data-redis</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<!-- TestNG -->
@@ -109,18 +157,23 @@
 		</dependency>
 	</dependencies>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>4.1.114.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
 					<excludes>
 						<exclude>

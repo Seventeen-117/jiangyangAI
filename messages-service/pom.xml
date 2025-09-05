@@ -15,7 +15,6 @@
 
     <properties>
         <java.version>24</java.version>
-        <spring-boot.version>3.2.5</spring-boot.version>
         <seata.version>1.7.0</seata.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <mysql.version>8.0.33</mysql.version>
@@ -190,6 +189,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Align Spring Session with Spring Boot 3.4.3 (requires Spring Session 3.3.x) -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-core</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
         <!-- Spring Boot WebSocket (STOMP) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -212,6 +218,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <!-- redisson brings netty; we avoid reactor-netty CNF by excluding redisson starter if present -->
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson-spring-data-27</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <!-- Redis连接池 -->
@@ -225,6 +238,12 @@
             <artifactId>base-service</artifactId>
             <version>1.0.0-Final</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Explicitly add netty-resolver-dns to satisfy DNS classes at runtime -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns</artifactId>
         </dependency>
     </dependencies>
 
@@ -279,5 +298,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Align all Netty modules to avoid DnsNameResolverChannelStrategy CNF -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>4.1.114.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

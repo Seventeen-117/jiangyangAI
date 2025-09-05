@@ -1,3 +1,11 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    sessions:
+      enabled: false
 server:
   port: 8689
 
@@ -6,6 +14,15 @@ spring:
     name: signature-service
   main:
     web-application-type: reactive
+  jmx:
+    enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.session.ReactiveSessionsEndpoint
   
   # Jackson 时间格式配置
   jackson:
@@ -131,23 +148,6 @@ signature:
     test-key: test-api-key-123
     strict-validation: false
 
-# 管理端点配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-      # 禁用Elasticsearch健康检查
-      defaults:
-        enabled: true
-  health:
-    elasticsearch:
-      enabled: false
-    elasticsearch-reactive:
-      enabled: false
 
 # 日志配置
 logging:

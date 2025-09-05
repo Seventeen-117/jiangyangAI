@@ -48,6 +48,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.session</groupId>
+                    <artifactId>spring-session-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.session</groupId>
+                    <artifactId>spring-session-data-redis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Spring Boot Starter Data Redis -->
@@ -56,17 +66,15 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <!-- Remove reactive Spring Session to avoid requiring ReactiveFindByIndexNameSessionRepository -->
+
         <!-- Spring Boot Starter Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Spring Boot Starter Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+        <!-- Spring Boot Starter Actuator (removed to avoid sessions endpoint introspection errors) -->
 
         <!-- Spring Cloud OpenFeign -->
         <dependency>
@@ -192,12 +200,7 @@
             <version>${spring-boot.version}</version>
         </dependency>
         
-        <!-- 强制使用 Spring Boot 3.2.5 兼容版本 - Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
+        
 
         <!-- TestNG -->
         <!-- TestNG -->
@@ -212,6 +215,12 @@
             <artifactId>base-service</artifactId>
             <version>1.0.0-Final</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-actuator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     
@@ -227,11 +236,11 @@
                 <scope>import</scope>
             </dependency>
             
-            <!-- 强制 Spring Cloud 版本兼容性 -->
+            <!-- Spring Cloud BOM aligned with Spring Boot 3.4.3 (2024.0.x) -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2023.0.1</version>
+                <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

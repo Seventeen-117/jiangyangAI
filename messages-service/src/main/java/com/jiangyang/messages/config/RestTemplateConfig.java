@@ -6,6 +6,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.nio.charset.StandardCharsets;
@@ -19,11 +20,16 @@ import java.time.Duration;
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(30))
-                .build();
+    public RestTemplate restTemplate() {
+        // Force JDK HTTP client to avoid Reactor Netty dependency at runtime
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new JdkClientHttpRequestFactory());
+        
+        // 配置消息转换器
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        restTemplate.getMessageConverters().add(1, new MappingJackson2HttpMessageConverter());
+        
+        return restTemplate;
     }
 
     @Bean
