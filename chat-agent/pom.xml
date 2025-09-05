@@ -36,11 +36,7 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		
-		<!-- Spring Security OAuth2 Client (required for Spring AI tool calling) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-		</dependency>
+		<!-- Spring Security OAuth2 Client (removed; tool calling disabled) -->
 		
 		<!-- Spring Boot Actuator (仅包含基本健康检查) -->
 		<dependency>
@@ -105,18 +101,12 @@
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-pdf-document-reader</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-azure-openai</artifactId>
-		</dependency>
+		<!-- removed azure openai starter to avoid auto-config and netty client -->
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
-		</dependency>
+		<!-- removed openai starter to avoid auto-config and netty client -->
 
 		<!-- MyBatis Plus -->
 		<dependency>

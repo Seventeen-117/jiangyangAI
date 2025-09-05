@@ -7,9 +7,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.azure.openai.AzureOpenAiChatModel;
-import org.springframework.ai.ollama.OllamaChatModel;
+ 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
@@ -29,9 +27,7 @@ import java.util.Map;
 public class AiChatServiceImpl implements AiChatService {
 
     // 使用懒加载方式注入AI模型，避免启动时创建Bean失败
-    private OpenAiChatModel openAiChatModel;
-    private AzureOpenAiChatModel azureOpenAiChatModel;
-    private OllamaChatModel ollamaChatModel;
+    
 
     @Override
     public Map<String, Object> chat(String message, String type) {
@@ -120,30 +116,9 @@ public class AiChatServiceImpl implements AiChatService {
      */
     private ChatClient getChatClient(String type) {
         return switch (type.toLowerCase()) {
-            case "openai" -> {
-                try {
-                    yield openAiChatModel != null ? ChatClient.create(openAiChatModel) : null;
-                } catch (Exception e) {
-                    log.warn("OpenAI聊天模型未配置或初始化失败: {}", e.getMessage());
-                    yield null;
-                }
-            }
-            case "azure" -> {
-                try {
-                    yield azureOpenAiChatModel != null ? ChatClient.create(azureOpenAiChatModel) : null;
-                } catch (Exception e) {
-                    log.warn("Azure OpenAI聊天模型未配置或初始化失败: {}", e.getMessage());
-                    yield null;
-                }
-            }
-            case "ollama" -> {
-                try {
-                    yield ollamaChatModel != null ? ChatClient.create(ollamaChatModel) : null;
-                } catch (Exception e) {
-                    log.warn("Ollama聊天模型未配置或初始化失败: {}", e.getMessage());
-                    yield null;
-                }
-            }
+            case "openai" -> null;
+            case "azure" -> null;
+            case "ollama" -> null;
             default -> null;
         };
     }

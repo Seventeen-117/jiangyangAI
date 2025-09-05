@@ -26,6 +26,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-reactor-netty</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-webflux</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- 强制使用 Spring Boot 3.2.5 兼容版本 -->
         <dependency>
@@ -49,6 +59,19 @@
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+        <!-- Remove WebFlux if present via any transitive path -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <!-- OpenFeign -->
@@ -122,12 +145,37 @@
             <artifactId>bgai-service</artifactId>
             <version>1.0.0-Final</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-webflux</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.jiangyang</groupId>
             <artifactId>base-service</artifactId>
             <version>1.0.0-Final</version>
             <scope>compile</scope>
+            <exclusions>
+                <!-- Avoid pulling actuator from base-service to prevent Spring Session reactive endpoint classpath checks -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-actuator</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.session</groupId>
+                    <artifactId>spring-session-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.session</groupId>
+                    <artifactId>spring-session-data-redis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     

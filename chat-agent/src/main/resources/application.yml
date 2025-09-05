@@ -26,6 +26,7 @@ spring:
         enabled: false  # 禁用Spring AI工具调用功能
     # OpenAI配置
     openai:
+      enabled: false
       api-key: ${OPENAI_API_KEY:sk-demo-key-for-development-only}
       base-url: ${OPENAI_BASE_URL:https://api.openai.com}
       chat:
@@ -36,6 +37,7 @@ spring:
     # Azure OpenAI配置
     azure:
       openai:
+        enabled: false
         api-key: ${AZURE_OPENAI_API_KEY:demo-key-for-development-only}
         endpoint: ${AZURE_OPENAI_ENDPOINT:https://demo.openai.azure.com}
         chat:
@@ -56,6 +58,14 @@ spring:
   # 禁用Elasticsearch自动配置
   elasticsearch:
     enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.client.reactive.ReactiveOAuth2ClientAutoConfiguration
+      - org.springframework.ai.autoconfigure.vectorstore.redis.RedisVectorStoreAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAutoConfiguration
+      - org.springframework.ai.model.azure.openai.autoconfigure.AzureOpenAiAutoConfiguration
+      - org.springframework.ai.model.azure.openai.autoconfigure.AzureOpenAiAudioTranscriptionAutoConfiguration
 
 # 服务配置
 service:

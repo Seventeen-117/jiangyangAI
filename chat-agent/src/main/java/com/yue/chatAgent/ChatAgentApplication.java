@@ -9,9 +9,7 @@ import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDa
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
-import org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration;
-import org.springframework.ai.model.azure.openai.autoconfigure.AzureOpenAiChatAutoConfiguration;
-import org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration;
+ 
 
 /**
  * AI智能代理服务主应用类
@@ -29,10 +27,7 @@ import org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfigura
         DataSourceTransactionManagerAutoConfiguration.class,
         RedisAutoConfiguration.class,
         ElasticsearchDataAutoConfiguration.class,
-        ElasticsearchRestClientAutoConfiguration.class,
-        OpenAiChatAutoConfiguration.class,
-        AzureOpenAiChatAutoConfiguration.class,
-        OllamaChatAutoConfiguration.class
+        ElasticsearchRestClientAutoConfiguration.class
     }
 )
 @EnableDiscoveryClient
@@ -60,10 +55,7 @@ public class ChatAgentApplication {
         System.setProperty("spring.autoconfigure.exclude", 
             "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration," +
             "org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration," +
-            "org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration," +
-            "org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration," +
-            "org.springframework.ai.model.azure.openai.autoconfigure.AzureOpenAiChatAutoConfiguration," +
-            "org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration");
+            "org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration");
         
         // 禁用健康检查
         System.setProperty("management.health.redis.enabled", "false");
