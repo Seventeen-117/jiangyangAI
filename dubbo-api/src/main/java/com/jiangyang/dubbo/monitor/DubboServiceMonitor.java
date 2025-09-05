@@ -197,5 +197,40 @@ public class DubboServiceMonitor {
             minResponseTime = Long.MAX_VALUE;
             lastCallTime = System.currentTimeMillis();
         }
+        
+        /**
+         * 获取总调用次数
+         */
+        public long getTotalCalls() {
+            return totalCalls.get();
+        }
+        
+        /**
+         * 获取成功调用次数
+         */
+        public long getSuccessCalls() {
+            return successCalls.get();
+        }
+        
+        /**
+         * 获取失败调用次数
+         */
+        public long getErrorCalls() {
+            return errorCalls.get();
+        }
+        
+        /**
+         * 获取最大响应时间
+         */
+        public long getMaxResponseTime() {
+            return maxResponseTime;
+        }
+        
+        /**
+         * 获取最后调用时间
+         */
+        public long getLastCallTime() {
+            return lastCallTime;
+        }
     }
 }

@@ -13,11 +13,7 @@
 	<description>AI智能代理服务</description>
 	
 	<properties>
-		<spring-ai.version>1.0.1</spring-ai.version>
-		<java.version>17</java.version>
-		<mybatis-plus.version>3.5.3.1</mybatis-plus.version>
-		<mysql.version>8.0.33</mysql.version>
-		<druid.version>1.2.18</druid.version>
+		<java.version>24</java.version>
 	</properties>
 	
 	<dependencies>
@@ -142,7 +138,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
+			<version>${mysql-connector-j.version}</version>
 		</dependency>
 		
 		<!-- Druid 数据源 -->

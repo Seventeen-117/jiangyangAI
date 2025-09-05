@@ -14,7 +14,7 @@
     <description>消息服务，统一管理RocketMQ、Kafka、RabbitMQ等消息中间件</description>
 
     <properties>
-        <java.version>17</java.version>
+        <java.version>24</java.version>
         <spring-boot.version>3.2.5</spring-boot.version>
         <seata.version>1.7.0</seata.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>

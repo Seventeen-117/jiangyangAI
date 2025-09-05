@@ -66,6 +66,13 @@
             <version>${revision}</version>
         </dependency>
 
+        <!-- 添加whitebox-testing模块 -->
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-whitebox-testing</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
         <!-- Nacos 服务发现和配置中心 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

@@ -16,12 +16,7 @@
     <description>签名验证微服务</description>
 
     <properties>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- 强制使用 Spring Boot 3.2.5 版本 -->
-        <spring-boot.version>3.2.5</spring-boot.version>
+        <java.version>24</java.version>
     </properties>
 
     <dependencies>
@@ -266,14 +261,14 @@
                 </configuration>
             </plugin>
             
-            <!-- Maven Compiler Plugin - 确保 Java 17 兼容性 -->
+            <!-- Maven Compiler Plugin - 确保 Java 21 兼容性 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>21</source>
+                    <target>21</target>
                     <encoding>UTF-8</encoding>
                     <compilerArgs>
                         <arg>--add-opens</arg>
@@ -286,7 +281,7 @@
                 </configuration>
             </plugin>
             
-            <!-- Maven Surefire Plugin - 测试时的 Java 17 兼容性 -->
+            <!-- Maven Surefire Plugin - 测试时的 Java 24 兼容性 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

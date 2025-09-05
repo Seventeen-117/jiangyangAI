@@ -1,7 +1,7 @@
 # Base Service Dockerfile
 # 通用多数据源服务，支持动态数据源切换
 
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # 设置工作目录
 WORKDIR /app

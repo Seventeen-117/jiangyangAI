@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(exclude = {
@@ -28,6 +29,7 @@ import org.springframework.context.annotation.PropertySource;
         MinioProperties.class,
         JmeterProperties.class
 })
+@ComponentScan(basePackages = {"io.metersphere", "io.metersphere.whitebox"})
 public class Application {
     public static void main(String[] args) {
         // 在Spring Boot启动之前强制设置Nacos使用HTTP传输

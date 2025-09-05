@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.4.3</version>
         <relativePath/>
     </parent>
 
@@ -19,7 +19,7 @@
 
     <properties>
         <revision>3.x</revision>
-        <java.version>17</java.version>
+        <java.version>24</java.version>
         <resilience4j.version>2.0.2</resilience4j.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>2.0.2</shiro.version>
@@ -92,10 +92,12 @@
         <flex-mark.version>0.64.0</flex-mark.version>
         
         <!-- Spring Boot 相关 -->
-        <spring-boot.version>3.2.5</spring-boot.version>
+        <spring-boot.version>3.4.3</spring-boot.version>
         <!-- Spring Cloud 相关 -->
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
+        <!-- Lombok version for Java 24 compatibility -->
+        <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <modules>
@@ -213,6 +215,27 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <release>${java.version}</release>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
     <distributionManagement>
         <repository>

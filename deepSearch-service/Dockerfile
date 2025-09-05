@@ -1,7 +1,7 @@
 # DeepSearch Service Dockerfile
 # 深度搜索服务
 
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # 设置工作目录
 WORKDIR /app

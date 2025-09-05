@@ -1,7 +1,7 @@
 # BGAI Service Dockerfile
-# AI智能服务，支持多种AI模型调用
+# AI核心服务
 
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -10,10 +10,6 @@ WORKDIR /app
 ENV JAVA_OPTS="-Xms1g -Xmx2g -XX:+UseG1GC -XX:+UseStringDeduplication"
 ENV SPRING_PROFILES_ACTIVE=dev
 ENV TZ=Asia/Shanghai
-ENV NACOS_HOST=8.133.246.113
-ENV NACOS_PORT=8848
-ENV SEATA_HOST=8.133.246.113
-ENV SEATA_PORT=8091
 
 # 安装必要的工具
 RUN apt-get update && apt-get install -y \
@@ -23,9 +19,9 @@ RUN apt-get update && apt-get install -y \
 # 复制JAR文件
 COPY target/bgai-service-*.jar app.jar
 
-# 创建非root用户并设置home目录
-RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser
-RUN chown -R appuser:appuser /app /home/appuser
+# 创建非root用户
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /app
 USER appuser
 
 # 暴露端口
@@ -37,4 +33,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
 
 # 启动命令
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-

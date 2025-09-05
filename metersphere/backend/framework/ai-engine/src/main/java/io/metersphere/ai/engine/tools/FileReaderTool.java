@@ -33,7 +33,7 @@ public class FileReaderTool {
 
             // 提取文本
             var documents = reader.get();
-            return documents.isEmpty() ? "" : documents.getFirst().getFormattedContent();
+            return documents.isEmpty() ? "" : documents.get(0).getFormattedContent();
         } catch (Exception e) {
             return "";
         }
@@ -53,7 +53,7 @@ public class FileReaderTool {
     public String readFromStream(InputStream inputStream) {
         TikaDocumentReader reader = new TikaDocumentReader(convertToResource(inputStream));
         List<Document> documents = reader.get();
-        return documents.isEmpty() ? "" : documents.getFirst().getFormattedContent();
+        return documents.isEmpty() ? "" : documents.get(0).getFormattedContent();
     }
 
     /**
