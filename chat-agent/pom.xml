@@ -107,6 +107,13 @@
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
 		</dependency>
 		<!-- removed openai starter to avoid auto-config and netty client -->
+		
+		<!-- Netty DNS resolver dependencies for Windows compatibility -->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns</artifactId>
+			<version>4.1.104.Final</version>
+		</dependency>
 
 		<!-- MyBatis Plus -->
 		<dependency>

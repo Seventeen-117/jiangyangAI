@@ -51,8 +51,8 @@
 		<dubbo-nacos-registry.version>3.3.0</dubbo-nacos-registry.version>
 		<hessian.version>4.0.66</hessian.version>
 		<!-- Elasticsearch 版本 -->
-		<elasticsearch.version>8.12.2</elasticsearch.version>
-		<elasticsearch-java.version>8.12.2</elasticsearch-java.version>
+		<elasticsearch.version>8.11.0</elasticsearch.version>
+		<elasticsearch-java.version>8.11.0</elasticsearch-java.version>
 		<!-- 测试框架 -->
 		<testng.version>7.1.0</testng.version>
 		<allure.version>2.25.0</allure.version>
@@ -145,7 +145,7 @@
 		<spring-aspects.version>6.1.6</spring-aspects.version>
 		<aspectjweaver.version>1.9.21.1</aspectjweaver.version>
 		<spring-boot-starter-logging.version>3.2.5</spring-boot-starter-logging.version>
-		<spring-boot-starter-data-elasticsearch.version>3.2.5</spring-boot-starter-data-elasticsearch.version>
+		<spring-boot-starter-data-elasticsearch.version>3.4.3</spring-boot-starter-data-elasticsearch.version>
 		<lombok.version>1.18.38</lombok.version>
 	</properties>
 
@@ -181,6 +181,15 @@
 				<groupId>com.alibaba.cloud</groupId>
 				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
 				<version>${spring-cloud-alibaba.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			
+			<!-- Netty BOM for DNS resolver compatibility -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>4.1.104.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
