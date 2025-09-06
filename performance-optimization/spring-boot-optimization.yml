@@ -1,6 +1,8 @@
-# 明确设置服务器端口
+# Spring Boot 性能优化配置
+# 目标：将响应时间优化到10毫秒以内
+
+# 1. 服务器配置优化
 server:
-  port: 8688
   # Tomcat 优化配置
   tomcat:
     # 线程池配置
@@ -22,9 +24,15 @@ server:
       enabled: true
       mime-types: application/json,application/xml,text/html,text/xml,text/plain,text/css,text/javascript,application/javascript
       min-response-size: 1024
+    # 其他优化
+    use-relative-redirects: true
+    reject-illegal-header-name: true
+    reject-illegal-header-value: true
     # 启用HTTP/2
     http2:
       enabled: true
+  # 端口配置
+  port: 8080
   # 服务端配置
   servlet:
     context-path: /
@@ -35,48 +43,9 @@ server:
         http-only: true
         secure: false
         same-site: lax
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
 
-# 管理端点配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus,dubbo
-      base-path: /actuator
-  endpoint:
-    health:
-      show-details: when-authorized
-      show-components: when-authorized
-    metrics:
-      enabled: true
-    sessions:
-      enabled: false
-  health:
-    redis:
-      enabled: false
-    db:
-      enabled: true
-  metrics:
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
-      percentiles:
-        http.server.requests: 0.5, 0.95, 0.99
-      slo:
-        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+# 2. Spring 框架优化
 spring:
-  application:
-    name: bgai-service
   # 主配置
   main:
     web-application-type: servlet
@@ -102,13 +71,7 @@ spring:
   cache:
     type: caffeine
     caffeine:
-      spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s,refreshAfterWrite=60s
-    cache-names:
-      - user-cache
-      - config-cache
-      - session-cache
-      - api-cache
-      - static-cache
+      spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s
   # 任务调度优化
   task:
     execution:
@@ -123,6 +86,16 @@ spring:
         size: 8
       thread-name-prefix: scheduled-task-
   # 消息转换器优化
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  # 国际化优化
+  messages:
+    basename: messages
+    encoding: UTF-8
+    cache-duration: 3600s
   # 静态资源优化
   web:
     resources:
@@ -133,65 +106,42 @@ spring:
           public: true
       chain:
         strategy:
-          fixed:
-            enabled: true
-            version: "1.0"
-          content:
-            enabled: true
+          fixed: true
+          enabled: true
         cache: true
         html-application-cache: true
-  # 数据库连接池优化
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      # 连接池基本配置
-      minimum-idle: 5                    # 最小空闲连接数
-      maximum-pool-size: 20              # 最大连接池大小
-      idle-timeout: 300000               # 空闲连接超时时间 (5分钟)
-      max-lifetime: 1200000              # 连接最大生存时间 (20分钟)
-      connection-timeout: 20000          # 连接超时时间 (20秒)
-      validation-timeout: 3000           # 验证超时时间 (3秒)
-      # 性能优化配置
-      leak-detection-threshold: 60000    # 连接泄漏检测阈值 (1分钟)
-      connection-test-query: SELECT 1    # 连接测试查询
-      auto-commit: true                  # 自动提交
-      read-only: false                   # 只读模式
-      # 连接池名称
-      pool-name: HikariCP-Pool
-      # 数据源属性
-      data-source-properties:
-        # MySQL 优化
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-        useLocalSessionState: true
-        rewriteBatchedStatements: true
-        cacheResultSetMetadata: true
-        cacheServerConfiguration: true
-        elideSetAutoCommits: true
-        maintainTimeStats: false
-        useLocalTransactionState: true
-        # 连接优化
-        socketTimeout: 30000
-        connectTimeout: 10000
-        autoReconnect: true
-        failOverReadOnly: false
-        maxReconnects: 3
-        initialTimeout: 2
-        # 字符集优化
-        characterEncoding: utf8mb4
-        useUnicode: true
-        # 其他优化
-        useSSL: false
-        allowPublicKeyRetrieval: true
-        serverTimezone: GMT%2B8
-        zeroDateTimeBehavior: convertToNull
-        nullCatalogMeansCurrent: true
-        nullNamePatternMatchesAll: true
-        useInformationSchema: true
 
-# 日志配置
+# 3. 管理端点优化
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+    metrics:
+      enabled: true
+  health:
+    redis:
+      enabled: false
+    db:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+
+# 4. 日志配置优化
 logging:
   level:
     root: INFO
@@ -206,9 +156,6 @@ logging:
     com.alibaba.druid: WARN
     # 应用日志
     com.jiangyang: DEBUG
-    org.apache.dubbo: INFO
-    com.jiangyang.dubbo: DEBUG
-    com.bgpay.bgai: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
@@ -218,7 +165,7 @@ logging:
     max-history: 30
     total-size-cap: 1GB
 
-# 性能监控配置
+# 5. 性能监控配置
 micrometer:
   metrics:
     export:
@@ -232,7 +179,21 @@ micrometer:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
 
-# 应用特定优化
+# 6. 安全配置优化
+security:
+  headers:
+    frame-options: DENY
+    content-type-options: nosniff
+    xss-protection: 1; mode=block
+    hsts: max-age=31536000; includeSubDomains
+  cors:
+    allowed-origins: "*"
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+    max-age: 3600
+
+# 7. 应用特定优化
 application:
   performance:
     # 启用性能优化
@@ -259,4 +220,3 @@ application:
       test-while-idle: true
       test-on-borrow: false
       test-on-return: false
-

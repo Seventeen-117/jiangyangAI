@@ -1,7 +1,7 @@
 # MeterSphere Dockerfile
-# 基于alpine的openjdk21镜像
+# 基于openjdk24镜像
 
-FROM registry.fit2cloud.com/metersphere/alpine-openjdk21-jre
+FROM openjdk:24-jdk-slim
 
 # 设置工作目录
 WORKDIR /app

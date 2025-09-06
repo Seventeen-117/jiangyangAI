@@ -1,15 +1,106 @@
 server:
   port: 8080
+  # Tomcat 优化配置
   tomcat:
-    max-http-header-size: 8KB
-    max-http-form-post-size: 2MB
-    max-http-header-count: 200
+    # 线程池配置
+    threads:
+      max: 200                    # 最大线程数
+      min-spare: 10              # 最小空闲线程数
+    # 连接器配置
+    max-connections: 8192        # 最大连接数
+    accept-count: 100            # 等待队列长度
+    max-http-header-size: 8KB    # 最大HTTP头大小
+    max-http-form-post-size: 2MB # 最大POST大小
+    max-http-header-count: 200   # 最大HTTP头数量
+    # 连接超时配置
+    connection-timeout: 20000    # 连接超时 20秒
+    keep-alive-timeout: 15000    # Keep-Alive超时 15秒
+    max-keep-alive-requests: 100 # 最大Keep-Alive请求数
+    # 压缩配置
+    compression:
+      enabled: true
+      mime-types: application/json,application/xml,text/html,text/xml,text/plain,text/css,text/javascript,application/javascript
+      min-response-size: 1024
+    # 启用HTTP/2
+    http2:
+      enabled: true
+  # 服务端配置
+  servlet:
+    context-path: /
+    session:
+      timeout: 30m
+      cookie:
+        max-age: 1800
+        http-only: true
+        secure: false
+        same-site: lax
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   application:
     name: gateway-service
   main:
     web-application-type: reactive
+    banner-mode: off
+    lazy-initialization: false
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+  # Jackson 优化
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+      write-null-map-values: false
+      write-empty-json-arrays: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      fail-on-null-for-primitives: false
+    mapper:
+      default-view-inclusion: false
+    time-zone: GMT+8
+  # 缓存配置
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s,refreshAfterWrite=60s
+    cache-names:
+      - user-cache
+      - config-cache
+      - session-cache
+      - api-cache
+      - static-cache
+  # 任务调度优化
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 16
+        queue-capacity: 100
+        keep-alive: 60s
+      thread-name-prefix: async-task-
+    scheduling:
+      pool:
+        size: 8
+      thread-name-prefix: scheduled-task-
+  # 消息转换器优化
+  # 静态资源优化
+  web:
+    resources:
+      cache:
+        period: 31536000  # 1年
+        cachecontrol:
+          max-age: 31536000
+          public: true
+      chain:
+        strategy:
+          fixed: true
+          enabled: true
+        cache: true
+        html-application-cache: true
   # 禁用数据源
   datasource:
     enabled: false
@@ -193,26 +284,62 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,gateway
+        include: health,info,metrics,prometheus,gateway
+      base-path: /actuator
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
+      show-components: when-authorized
+    metrics:
+      enabled: true
   health:
     redis:
       enabled: false
     elasticsearch:
       enabled: false
+    db:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 # 日志配置
 logging:
   level:
+    root: INFO
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.apache.tomcat: WARN
+    org.apache.catalina: WARN
+    org.apache.coyote: WARN
+    org.apache.juli: WARN
+    com.zaxxer.hikari: WARN
+    com.alibaba.druid: WARN
+    # 应用日志
+    com.jiangyang: DEBUG
     org.springframework.cloud.gateway: DEBUG
     com.jiangyang.gateway: DEBUG
     com.alibaba.nacos: OFF  # 禁用Nacos日志
     io.seata: OFF  # 禁用Seata日志
     com.netflix.eureka: OFF  # 禁用Eureka日志
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
 
 # 禁用Seata分布式事务
 seata:
@@ -237,3 +364,45 @@ eureka:
     enabled: false
   instance:
     enabled: false
+
+# 性能监控配置
+micrometer:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+
+# 应用特定优化
+application:
+  performance:
+    # 启用性能优化
+    enabled: true
+    # 响应时间目标
+    target-response-time: 10ms
+    # 缓存配置
+    cache:
+      enabled: true
+      ttl: 300s
+      max-size: 10000
+    # 异步处理
+    async:
+      enabled: true
+      core-pool-size: 8
+      max-pool-size: 16
+      queue-capacity: 100
+    # 连接池优化
+    connection-pool:
+      max-active: 20
+      min-idle: 5
+      max-wait: 1000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false

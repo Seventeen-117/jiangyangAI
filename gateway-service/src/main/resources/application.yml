@@ -1,0 +1,411 @@
+#server:
+#  port: 8080
+#  # Tomcat 优化配置
+#  tomcat:
+#    # 线程池配置
+#    threads:
+#      max: 200                    # 最大线程数
+#      min-spare: 10              # 最小空闲线程数
+#    # 连接器配置
+#    max-connections: 8192        # 最大连接数
+#    accept-count: 100            # 等待队列长度
+#    max-http-header-size: 8KB    # 最大HTTP头大小
+#    max-http-form-post-size: 2MB # 最大POST大小
+#    max-http-header-count: 200   # 最大HTTP头数量
+#    # 连接超时配置
+#    connection-timeout: 20000    # 连接超时 20秒
+#    keep-alive-timeout: 15000    # Keep-Alive超时 15秒
+#    max-keep-alive-requests: 100 # 最大Keep-Alive请求数
+#    # 压缩配置
+#    compression:
+#      enabled: true
+#      mime-types: application/json,application/xml,text/html,text/xml,text/plain,text/css,text/javascript,application/javascript
+#      min-response-size: 1024
+#    # 启用HTTP/2
+#    http2:
+#      enabled: true
+#  # 服务端配置
+#  servlet:
+#    context-path: /
+#    session:
+#      timeout: 30m
+#      cookie:
+#        max-age: 1800
+#        http-only: true
+#        secure: false
+#        same-site: lax
+#    encoding:
+#      charset: UTF-8
+#      enabled: true
+#      force: true
+#
+#spring:
+#  application:
+#    name: gateway-service
+#  main:
+#    web-application-type: reactive
+#    banner-mode: off
+#    lazy-initialization: false
+#    allow-circular-references: true
+#    allow-bean-definition-overriding: true
+#  # Jackson 优化
+#  jackson:
+#    default-property-inclusion: non_null
+#    serialization:
+#      write-dates-as-timestamps: false
+#      write-null-map-values: false
+#      write-empty-json-arrays: false
+#      fail-on-empty-beans: false
+#    deserialization:
+#      fail-on-unknown-properties: false
+#      fail-on-null-for-primitives: false
+#    mapper:
+#      default-view-inclusion: false
+#    time-zone: GMT+8
+#  # 缓存配置
+#  cache:
+#    type: caffeine
+#    caffeine:
+#      spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s,refreshAfterWrite=60s
+#    cache-names:
+#      - user-cache
+#      - config-cache
+#      - session-cache
+#      - api-cache
+#      - static-cache
+#  # 任务调度优化
+#  task:
+#    execution:
+#      pool:
+#        core-size: 8
+#        max-size: 16
+#        queue-capacity: 100
+#        keep-alive: 60s
+#      thread-name-prefix: async-task-
+#    scheduling:
+#      pool:
+#        size: 8
+#      thread-name-prefix: scheduled-task-
+#  # 消息转换器优化
+#  # 静态资源优化
+#  web:
+#    resources:
+#      cache:
+#        period: 31536000  # 1年
+#        cachecontrol:
+#          max-age: 31536000
+#          public: true
+#      chain:
+#        strategy:
+#          fixed:
+#            enabled: true
+#            version: "1.0"
+#          content:
+#            enabled: true
+#        cache: true
+#        html-application-cache: true
+#  # 禁用数据源
+#  datasource:
+#    enabled: false
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+#      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+#      - org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
+#      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+#      - org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration
+#      - com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchRepositoriesAutoConfiguration
+#      - org.springframework.boot.autoconfigure.data.elasticsearch.ReactiveElasticsearchRepositoriesAutoConfiguration
+#      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+#
+#  # 禁用Nacos配置
+#  cloud:
+#    nacos:
+#      discovery:
+#        enabled: true  # 启用 Nacos 服务发现
+#      config:
+#        enabled: true  # 启用 Nacos 配置中心
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: true  # 启用自动路由发现，Nacos服务可用
+#          lower-case-service-id: true
+#      routes:
+#        # 签名验证服务路由 - 最高优先级
+#        - id: signature-service
+#          uri: http://localhost:8689
+#          order: -1000
+#          predicates:
+#            - Path=/api/signature/**,/api/keys/**,/api/auth/**,/api/sso/**,/api/validation/**,/api/token/**,/api/app-secret/**
+#          filters:
+#            - AddRequestHeader=X-Gateway-Source, gateway-service
+#            - AddResponseHeader=X-Gateway-Response, true
+##             暂时禁用 Redis 限流器，等 Redis 服务可用后启用
+##            - name: RequestRateLimiter
+##              args:
+##                replenishRate: 200
+##                burstCapacity: 400
+#
+#        # test-service路由 - 高优先级，避免被默认路由拦截
+#        - id: test-service
+#          uri: http://localhost:8686
+#          order: -999
+#          predicates:
+#            - Path=/api/test/**
+#          filters:
+#            - AddRequestHeader=X-Gateway-Source, gateway-service
+#            - AddResponseHeader=X-Gateway-Response, true
+#
+#        # bgai服务路由 - 需要验证的接口 (先经过验证过滤器)
+#        - id: bgai-service-validated
+#          uri: http://localhost:8688  # 直接路由到bgai-service
+#          predicates:
+#            - Path=/api/chatGatWay-internal/**,/api/admin/**
+#          filters:
+#            - ValidationFilter
+#            - AddRequestHeader=X-Gateway-Source, gateway-service
+#            - AddResponseHeader=X-Gateway-Response, true
+#            # 暂时禁用 Redis 限流器，等 Redis 服务可用后启用
+##            - name: RequestRateLimiter
+##              args:
+##                replenishRate: 200
+##                burstCapacity: 400
+#
+#        # bgai服务路由 - 公开接口
+#        - id: bgai-service-public
+#          uri: http://localhost:8688
+#          predicates:
+#            - Path=/api/bgai/**,/api/public/**
+#          filters:
+#            - StripPrefix=1
+#            - AddRequestHeader=X-Gateway-Source, gateway-service
+#            - AddResponseHeader=X-Gateway-Response, true
+#            # 暂时禁用 Redis 限流器，等 Redis 服务可用后启用
+##            - name: RequestRateLimiter
+##              args:
+##                replenishRate: 200
+##                burstCapacity: 400
+#
+#        # 默认路由 - 仅处理 /api/** 前缀的请求，避免拦截本地静态资源和 Swagger
+#        - id: default-route
+#          uri: http://localhost:8688
+#          predicates:
+#            - Path=/api/**
+#          filters:
+#            - AddRequestHeader=X-Gateway-Source, gateway-service
+#            - AddResponseHeader=X-Gateway-Response, true
+#
+## 网关配置
+#gateway:
+#  # 启用动态路由功能
+#  dynamic-routes:
+#    enabled: true
+#  # signature-service配置
+#  signature-service:
+#    base-url: http://localhost:8689
+#    validation-endpoint: /api/validation/validate
+#    timeout: 5000  # 5秒超时
+#    retry-attempts: 3
+#  # 跳过限流的路径
+#  skip-rate-limit-paths:
+#    - /actuator/**
+#    - /health/**
+#    - /metrics/**
+#    - /public/**
+#  # 跳过熔断的路径
+#  skip-circuit-breaker-paths:
+#    - /actuator/**
+#    - /health/**
+#    - /metrics/**
+#    - /public/**
+#  # 跳过防御检查的路径
+#  skip-defensive-paths:
+#    - /actuator/**
+#    - /health/**
+#    - /metrics/**
+#    - /public/**
+#    - /api/validation/**
+#    - /api/metrics/**
+#    - /api/token/**
+#    - /api/keys/**
+#  # 路径权限配置
+#  path-permissions:
+#    - path: /api/admin/**
+#      methods: [GET, POST, PUT, DELETE]
+#      roles: [ADMIN]
+#    - path: /api/user/**
+#      methods: [GET, POST]
+#      roles: [USER, ADMIN]
+#  # 限流配置
+#  rate-limit-configs:
+#    - path: /api/chat/**
+#      max-requests: 100
+#      time-window: 60
+#    - path: /api/chatGatWay-internal/**
+#      max-requests: 50
+#      time-window: 60
+#  # 熔断器配置
+#  circuit-breaker-configs:
+#    - path: /api/chat/**
+#      failure-rate-threshold: 50.0
+#      ring-buffer-size-in-closed-state: 10
+#      ring-buffer-size-in-half-open-state: 5
+#      wait-duration-in-open-state: 30
+#      fallback-message: "Service temporarily unavailable"
+#  # 防御性策略配置
+#  defensive-config:
+#    max-requests-per-minute: 10000
+#    enable-anti-crawler: false
+#    enable-anti-replay: false
+#    enable-malicious-content-detection: false
+#    timestamp-validity-seconds: 300
+#    blacklisted-ips:
+#      - "192.168.1.100"
+#      - "10.0.0.50"
+#    whitelisted-ips:
+#      - "192.168.1.1"
+#      - "10.0.0.1"
+#  # 灰度发布配置
+#  canary:
+#    enabled: false
+#    weight: 10
+#    header: "X-Canary"
+#    value: "true"
+#  canary-paths:
+#    - /api/chat/**
+#  canary-services:
+#    - name: bgai-service
+#      canary-uri: http://localhost:8688-canary
+#      main-uri: http://localhost:8688
+#
+## 管理端点配置
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,metrics,prometheus,gateway
+#      base-path: /actuator
+#  endpoint:
+#    health:
+#      show-details: when-authorized
+#      show-components: when-authorized
+#    metrics:
+#      enabled: true
+#  health:
+#    redis:
+#      enabled: false
+#    elasticsearch:
+#      enabled: false
+#    db:
+#      enabled: false
+#  metrics:
+#    distribution:
+#      percentiles-histogram:
+#        http.server.requests: true
+#      percentiles:
+#        http.server.requests: 0.5, 0.95, 0.99
+#      slo:
+#        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
+#
+## 日志配置
+#logging:
+#  level:
+#    root: INFO
+#    org.springframework: WARN
+#    org.springframework.web: WARN
+#    org.springframework.security: WARN
+#    org.apache.tomcat: WARN
+#    org.apache.catalina: WARN
+#    org.apache.coyote: WARN
+#    org.apache.juli: WARN
+#    com.zaxxer.hikari: WARN
+#    com.alibaba.druid: WARN
+#    # 应用日志
+#    com.jiangyang: DEBUG
+#    org.springframework.cloud.gateway: DEBUG
+#    com.jiangyang.gateway: DEBUG
+#    com.alibaba.nacos: OFF  # 禁用Nacos日志
+#    io.seata: OFF  # 禁用Seata日志
+#    com.netflix.eureka: OFF  # 禁用Eureka日志
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+#    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+#  file:
+#    name: logs/application.log
+#    max-size: 100MB
+#    max-history: 30
+#    total-size-cap: 1GB
+#
+## 禁用Seata分布式事务
+#seata:
+#  enabled: false
+#  saga:
+#    enabled: false
+#    state-machine:
+#      auto-register: false
+#      enabled: false
+#saga:
+#  enabled: false
+#
+## JWT配置
+#jwt:
+#  secret: jiangyang-gateway-secret-key-2024-for-development-only-change-in-production
+#  issuer: jiangyang-gateway
+#  expiration: 3600000  # 1小时
+#
+## 禁用Eureka客户端
+#eureka:
+#  client:
+#    enabled: false
+#  instance:
+#    enabled: false
+#
+## 性能监控配置
+#micrometer:
+#  metrics:
+#    export:
+#      prometheus:
+#        enabled: true
+#    distribution:
+#      percentiles-histogram:
+#        http.server.requests: true
+#      percentiles:
+#        http.server.requests: 0.5, 0.95, 0.99
+#      slo:
+#        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+#
+## 应用特定优化
+#application:
+#  performance:
+#    # 启用性能优化
+#    enabled: true
+#    # 响应时间目标
+#    target-response-time: 10ms
+#    # 缓存配置
+#    cache:
+#      enabled: true
+#      ttl: 300s
+#      max-size: 10000
+#    # 异步处理
+#    async:
+#      enabled: true
+#      core-pool-size: 8
+#      max-pool-size: 16
+#      queue-capacity: 100
+#    # 连接池优化
+#    connection-pool:
+#      max-active: 20
+#      min-idle: 5
+#      max-wait: 1000
+#      validation-query: SELECT 1
+#      test-while-idle: true
+#      test-on-borrow: false
+#      test-on-return: false

@@ -1,0 +1,256 @@
+# 网络和HTTP性能优化配置
+# 目标：将响应时间优化到10毫秒以内
+
+# 1. Spring Cloud Gateway 优化
+spring:
+  cloud:
+    gateway:
+      # 全局过滤器配置
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - AddResponseHeader=X-Response-Default-Foo, Default-Bar
+      # 路由配置优化
+      routes:
+        - id: optimized-route
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/**
+          filters:
+            # 响应时间优化过滤器
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1000
+                redis-rate-limiter.burstCapacity: 2000
+                redis-rate-limiter.requestedTokens: 1
+            # 缓存过滤器
+            - name: AddResponseHeader
+              args:
+                name: Cache-Control
+                value: "public, max-age=300"
+            # 压缩过滤器
+            - name: Compress
+              args:
+                min-response-size: 1024
+            # 重试过滤器
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY,GATEWAY_TIMEOUT
+                methods: GET,POST
+                backoff:
+                  firstBackoff: 50ms
+                  maxBackoff: 500ms
+                  factor: 2
+      # HTTP客户端配置
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 10000
+        pool:
+          max-connections: 500
+          max-idle-time: 30s
+          max-life-time: 60s
+        wiretap: false
+      # WebFlux配置
+      webflux:
+        base-path: /
+      # 全局CORS配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+
+# 2. WebClient 优化配置
+webclient:
+  # 连接池配置
+  connection-pool:
+    max-connections: 500
+    max-idle-time: 30s
+    max-life-time: 60s
+    pending-acquire-timeout: 5s
+    pending-acquire-max-count: 10
+  # 超时配置
+  timeouts:
+    connect: 5s
+    read: 10s
+    write: 10s
+    response: 10s
+  # 重试配置
+  retry:
+    max-attempts: 3
+    backoff:
+      first-backoff: 100ms
+      max-backoff: 1s
+      multiplier: 2
+  # 压缩配置
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+# 3. RestTemplate 优化配置
+resttemplate:
+  # 连接池配置
+  connection-pool:
+    max-total: 200
+    default-max-per-route: 50
+    max-idle-time: 30s
+    max-life-time: 60s
+  # 超时配置
+  timeouts:
+    connect: 5000
+    read: 10000
+    connection-request: 5000
+  # 重试配置
+  retry:
+    max-attempts: 3
+    backoff:
+      first-backoff: 100ms
+      max-backoff: 1s
+      multiplier: 2
+
+# 4. HTTP/2 配置
+server:
+  http2:
+    enabled: true
+    max-concurrent-streams: 1000
+    initial-window-size: 65535
+    max-frame-size: 16384
+    header-table-size: 4096
+    max-header-list-size: 8192
+
+# 5. 网络优化配置
+network:
+  # TCP优化
+  tcp:
+    # 启用TCP_NODELAY
+    nodelay: true
+    # 启用TCP_QUICKACK
+    quickack: true
+    # 启用SO_REUSEADDR
+    reuse-address: true
+    # 启用SO_KEEPALIVE
+    keep-alive: true
+    # 启用TCP_CORK
+    cork: true
+    # 启用TCP_NOPUSH
+    nopush: true
+  
+  # UDP优化
+  udp:
+    # 启用UDP_CORK
+    cork: true
+    # 启用UDP_NOPUSH
+    nopush: true
+  
+  # 套接字优化
+  socket:
+    # 接收缓冲区大小
+    receive-buffer-size: 65536
+    # 发送缓冲区大小
+    send-buffer-size: 65536
+    # 接收超时
+    receive-timeout: 30000
+    # 发送超时
+    send-timeout: 30000
+    # 连接超时
+    connect-timeout: 10000
+    # 读取超时
+    read-timeout: 30000
+    # 写入超时
+    write-timeout: 30000
+
+# 6. 负载均衡优化
+loadbalancer:
+  # 健康检查配置
+  health-check:
+    enabled: true
+    interval: 30s
+    timeout: 5s
+    retry-count: 3
+  # 负载均衡算法
+  algorithm: round_robin
+  # 重试配置
+  retry:
+    enabled: true
+    max-attempts: 3
+    backoff:
+      first-backoff: 100ms
+      max-backoff: 1s
+      multiplier: 2
+
+# 7. 熔断器优化
+circuit-breaker:
+  # 熔断器配置
+  config:
+    default:
+      failure-rate-threshold: 50
+      wait-duration-in-open-state: 30s
+      sliding-window-size: 10
+      minimum-number-of-calls: 5
+      permitted-number-of-calls-in-half-open-state: 3
+      automatic-transition-from-open-to-half-open-enabled: true
+  # 重试配置
+  retry:
+    max-attempts: 3
+    wait-duration: 1s
+    exponential-backoff-multiplier: 2
+    exponential-backoff-max-duration: 10s
+
+# 8. 限流优化
+rate-limiter:
+  # 令牌桶配置
+  token-bucket:
+    capacity: 1000
+    refill-tokens: 100
+    refill-duration: 1s
+  # 滑动窗口配置
+  sliding-window:
+    window-size: 60s
+    window-count: 10
+  # 固定窗口配置
+  fixed-window:
+    window-size: 60s
+    limit: 1000
+
+# 9. 缓存优化
+cache:
+  # 本地缓存配置
+  local:
+    maximum-size: 10000
+    expire-after-write: 300s
+    expire-after-access: 60s
+    refresh-after-write: 60s
+  # 分布式缓存配置
+  distributed:
+    ttl: 300s
+    max-idle-time: 60s
+    max-connections: 100
+    connection-timeout: 5000
+    socket-timeout: 5000
+
+# 10. 监控配置
+monitoring:
+  # 指标配置
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      slo:
+        http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
+  # 追踪配置
+  tracing:
+    enabled: true
+    sampling:
+      probability: 0.1
+    zipkin:
+      enabled: true
+      endpoint: http://localhost:9411/api/v2/spans

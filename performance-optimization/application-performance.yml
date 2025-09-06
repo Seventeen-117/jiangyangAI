@@ -1,6 +1,9 @@
-# DeepSearch Service 主配置文件
+# 微服务性能优化配置文件
+# 目标：将响应时间优化到10毫秒以内
+# 使用方法：将此配置合并到各服务的 application.yml 中
+
+# 1. 服务器配置优化
 server:
-  port: 8085
   # Tomcat 优化配置
   tomcat:
     # 线程池配置
@@ -25,6 +28,8 @@ server:
     # 启用HTTP/2
     http2:
       enabled: true
+  # 端口配置
+  port: 8080
   # 服务端配置
   servlet:
     context-path: /
@@ -35,16 +40,9 @@ server:
         http-only: true
         secure: false
         same-site: lax
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
 
+# 2. Spring 框架优化
 spring:
-  application:
-    name: deepSearch-service
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
   # 主配置
   main:
     web-application-type: servlet
@@ -52,10 +50,6 @@ spring:
     lazy-initialization: false
     allow-circular-references: true
     allow-bean-definition-overriding: true
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.actuate.autoconfigure.session.SessionsEndpointAutoConfiguration
-      - org.springframework.boot.actuate.autoconfigure.endpoint.jmx.JmxEndpointAutoConfiguration
   # Jackson 优化
   jackson:
     default-property-inclusion: non_null
@@ -95,6 +89,11 @@ spring:
         size: 8
       thread-name-prefix: scheduled-task-
   # 消息转换器优化
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   # 静态资源优化
   web:
     resources:
@@ -105,14 +104,13 @@ spring:
           public: true
       chain:
         strategy:
-          fixed:
-            enabled: true
-            version: "1.0"
-          content:
-            enabled: true
+          fixed: true
+          enabled: true
         cache: true
         html-application-cache: true
-  # 数据库连接池优化
+
+# 3. 数据库连接池优化
+spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -162,99 +160,53 @@ spring:
         nullCatalogMeansCurrent: true
         nullNamePatternMatchesAll: true
         useInformationSchema: true
-    
 
+# 4. JPA/Hibernate 优化
+spring:
+  jpa:
+    # 数据库方言
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    # 性能优化
+    properties:
+      hibernate:
+        # 连接池配置
+        connection:
+          provider_disables_autocommit: true
+        # 缓存配置
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        # 批量操作优化
+        jdbc:
+          batch_size: 20
+          batch_versioned_data: true
+          order_inserts: true
+          order_updates: true
+        # 查询优化
+        query:
+          in_clause_parameter_padding: true
+          plan_cache_max_size: 2048
+          plan_parameter_metadata_max_size: 128
+        # 其他优化
+        generate_statistics: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+        id:
+          new_generator_mappings: true
+        hbm2ddl:
+          auto: none
+        show_sql: false
+        format_sql: false
+        # 连接提供者
+        connection:
+          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
 
-
-
-# Dubbo配置 - 避免缓存冲突
-dubbo:
-  application:
-    name: deepSearch-service
-    version: 1.0.0
-    owner: jiangyang
-    organization: jiangyang-tech
-    # 设置唯一的缓存路径，避免与其他服务冲突
-    qos-enable: false
-    qos-port: 22222
-    qos-accept-foreign-ip: false
-  registry:
-    address: nacos://8.133.246.113:8848
-    group: DEFAULT_GROUP
-    timeout: 10000
-    check: false
-  consumer:
-    timeout: 5000
-    retries: 2
-    loadbalance: roundrobin
-    cluster: failover
-    check: false
-    connections: 1
-    reconnect: true
-  # 设置缓存路径，避免与其他服务冲突
-  cache:
-    file:
-      path: ${user.home}/.dubbo/deepSearch-service
-    store:
-      type: memory
-  # 设置元数据缓存配置
-  metadata:
-    cache:
-      file:
-        path: ${user.home}/.dubbo/deepSearch-service/metadata
-      store:
-        type: memory
-  # 设置服务发现缓存配置
-  service:
-    discovery:
-      cache:
-        file:
-          path: ${user.home}/.dubbo/deepSearch-service/discovery
-        store:
-          type: memory
-  # 设置映射缓存配置
-  mapping:
-    cache:
-      file:
-        path: ${user.home}/.dubbo/deepSearch-service/mapping
-      store:
-        type: memory
-
-# Seata配置 - 完全禁用
-seata:
-  enabled: false
-  auto-data-source-proxy: false
-  enable-auto-data-source-proxy: false
-  disable-global-transaction: true
-
-# 日志配置 - 减少不必要的输出
-logging:
-  level:
-    # 禁用Spring Boot自动配置的详细日志
-    org.springframework.boot.autoconfigure: WARN
-    org.springframework.boot.autoconfigure.condition: OFF
-    org.springframework.boot.autoconfigure.logging: WARN
-    # 禁用条件评估报告
-    org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener: OFF
-    # 设置根日志级别
-    root: INFO
-    # 设置应用相关日志级别
-    com.jiangyang.datacalculation: INFO
-    com.jiangyang.base: WARN
-    # 设置Dubbo日志级别
-    org.apache.dubbo: WARN
-    # 设置Spring Cloud相关日志级别
-    org.springframework.cloud: WARN
-    org.springframework.cloud.openfeign: WARN
-    # 设置Nacos相关日志级别
-    com.alibaba.nacos: WARN
-    org.springframework.cloud.nacos: WARN
-    # 禁用Seata相关日志
-    io.seata: OFF
-    com.jiangyang.base.seata: OFF
-    com.jiangyang.base.seata.util.SeataConfigValidator: OFF
-
-# 管理端点配置
+# 5. 管理端点优化
 management:
   endpoints:
     web:
@@ -267,8 +219,6 @@ management:
       show-components: when-authorized
     metrics:
       enabled: true
-    sessions:
-      enabled: false
   health:
     redis:
       enabled: false
@@ -286,7 +236,31 @@ management:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
 
-# 性能监控配置
+# 6. 日志配置优化
+logging:
+  level:
+    root: INFO
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.apache.tomcat: WARN
+    org.apache.catalina: WARN
+    org.apache.coyote: WARN
+    org.apache.juli: WARN
+    com.zaxxer.hikari: WARN
+    com.alibaba.druid: WARN
+    # 应用日志
+    com.jiangyang: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/application.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
+
+# 7. 性能监控配置
 micrometer:
   metrics:
     export:
@@ -300,7 +274,7 @@ micrometer:
       slo:
         http.server.requests: 10ms, 50ms, 100ms, 200ms, 500ms, 1s, 2s, 5s
 
-# 应用特定优化
+# 8. 应用特定优化
 application:
   performance:
     # 启用性能优化
@@ -327,9 +301,3 @@ application:
       test-while-idle: true
       test-on-borrow: false
       test-on-return: false
-
-# 服务配置
-service:
-  name: deepSearch-service
-  version: 1.0.0
-

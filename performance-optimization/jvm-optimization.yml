@@ -1,0 +1,120 @@
+# JVM 性能优化配置
+# 目标：将响应时间优化到10毫秒以内
+
+# 1. 垃圾回收器优化 - 使用ZGC (Java 17+) 或 G1GC
+# ZGC 配置 (推荐用于低延迟场景)
+JAVA_OPTS_ZGC: |
+  -XX:+UnlockExperimentalVMOptions
+  -XX:+UseZGC
+  -XX:+UseLargePages
+  -XX:+UseTransparentHugePages
+  -XX:ZCollectionInterval=5
+  -XX:ZUncommitDelay=300
+  -XX:ZProactive=true
+  -XX:ZUncommit=true
+
+# G1GC 配置 (Java 8-16 推荐)
+JAVA_OPTS_G1GC: |
+  -XX:+UseG1GC
+  -XX:MaxGCPauseMillis=10
+  -XX:G1HeapRegionSize=16m
+  -XX:G1NewSizePercent=30
+  -XX:G1MaxNewSizePercent=40
+  -XX:G1MixedGCCountTarget=8
+  -XX:G1MixedGCLiveThresholdPercent=85
+  -XX:G1RSetUpdatingPauseTimePercent=5
+  -XX:G1ConcRefinementThreads=4
+  -XX:+G1UseAdaptiveIHOP
+  -XX:G1MixedGCLiveThresholdPercent=85
+  -XX:+G1UseAdaptiveIHOP
+  -XX:G1HeapRegionSize=16m
+
+# 2. 内存优化
+JAVA_OPTS_MEMORY: |
+  -Xms512m
+  -Xmx2g
+  -XX:MetaspaceSize=256m
+  -XX:MaxMetaspaceSize=512m
+  -XX:CompressedClassSpaceSize=128m
+  -XX:ReservedCodeCacheSize=256m
+  -XX:InitialCodeCacheSize=64m
+
+# 3. 编译器优化
+JAVA_OPTS_COMPILER: |
+  -XX:+TieredCompilation
+  -XX:TieredStopAtLevel=1
+  -XX:+UseCompressedOops
+  -XX:+UseCompressedClassPointers
+  -XX:+UseFastUnorderedTimeStamps
+  -XX:+UseAES
+  -XX:+UseAESIntrinsics
+
+# 4. 网络和I/O优化
+JAVA_OPTS_NETWORK: |
+  -Djava.net.preferIPv4Stack=true
+  -Djava.awt.headless=true
+  -Dfile.encoding=UTF-8
+  -Dsun.jnu.encoding=UTF-8
+  -Djava.security.egd=file:/dev/./urandom
+
+# 5. 监控和调试优化
+JAVA_OPTS_MONITORING: |
+  -XX:+PrintGCDetails
+  -XX:+PrintGCTimeStamps
+  -XX:+PrintGCApplicationStoppedTime
+  -XX:+PrintGCApplicationConcurrentTime
+  -Xloggc:gc.log
+  -XX:+UseGCLogFileRotation
+  -XX:NumberOfGCLogFiles=5
+  -XX:GCLogFileSize=10M
+
+# 6. 低延迟优化
+JAVA_OPTS_LOW_LATENCY: |
+  -XX:+UseBiasedLocking
+  -XX:+UseFastAccessorMethods
+  -XX:+OptimizeStringConcat
+  -XX:+UseStringDeduplication
+  -XX:+UseAdaptiveNUMAChunkSizing
+  -XX:+UseNUMA
+  -XX:+UseNUMAInterleaving
+
+# 7. 完整优化配置 (生产环境)
+JAVA_OPTS_PRODUCTION: |
+  -server
+  -XX:+UseZGC
+  -XX:+UseLargePages
+  -XX:+UseTransparentHugePages
+  -Xms1g
+  -Xmx2g
+  -XX:MetaspaceSize=256m
+  -XX:MaxMetaspaceSize=512m
+  -XX:+TieredCompilation
+  -XX:TieredStopAtLevel=1
+  -XX:+UseCompressedOops
+  -XX:+UseCompressedClassPointers
+  -Djava.net.preferIPv4Stack=true
+  -Djava.awt.headless=true
+  -Dfile.encoding=UTF-8
+  -Djava.security.egd=file:/dev/./urandom
+  -XX:+UseStringDeduplication
+  -XX:+UseNUMA
+  -XX:+UseNUMAInterleaving
+  -XX:+UseBiasedLocking
+  -XX:+UseFastAccessorMethods
+  -XX:+OptimizeStringConcat
+  -XX:+UseAdaptiveNUMAChunkSizing
+
+# 8. 开发环境优化配置
+JAVA_OPTS_DEVELOPMENT: |
+  -server
+  -XX:+UseG1GC
+  -XX:MaxGCPauseMillis=10
+  -Xms512m
+  -Xmx1g
+  -XX:MetaspaceSize=128m
+  -XX:MaxMetaspaceSize=256m
+  -XX:+TieredCompilation
+  -XX:TieredStopAtLevel=1
+  -Djava.net.preferIPv4Stack=true
+  -Djava.awt.headless=true
+  -Dfile.encoding=UTF-8

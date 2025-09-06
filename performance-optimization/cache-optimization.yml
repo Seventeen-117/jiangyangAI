@@ -1,0 +1,196 @@
+# 缓存性能优化配置
+# 目标：将响应时间优化到10毫秒以内
+
+# 1. Spring Cache 配置
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s,refreshAfterWrite=60s
+    cache-names:
+      - user-cache
+      - config-cache
+      - session-cache
+      - api-cache
+      - static-cache
+
+# 2. Caffeine 本地缓存配置
+caffeine:
+  # 用户缓存
+  user-cache:
+    spec: maximumSize=5000,expireAfterWrite=600s,expireAfterAccess=120s
+  # 配置缓存
+  config-cache:
+    spec: maximumSize=1000,expireAfterWrite=1800s,expireAfterAccess=300s
+  # 会话缓存
+  session-cache:
+    spec: maximumSize=10000,expireAfterWrite=1800s,expireAfterAccess=300s
+  # API缓存
+  api-cache:
+    spec: maximumSize=20000,expireAfterWrite=300s,expireAfterAccess=60s
+  # 静态资源缓存
+  static-cache:
+    spec: maximumSize=50000,expireAfterWrite=3600s,expireAfterAccess=600s
+
+# 3. Redis 分布式缓存配置
+spring:
+  redis:
+    # 连接配置
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: 0
+    timeout: 5000ms
+    # 连接池配置
+    lettuce:
+      pool:
+        max-active: 200
+        max-idle: 50
+        min-idle: 10
+        max-wait: 5000ms
+      shutdown-timeout: 100ms
+    # 序列化配置
+    serialization:
+      key-serializer: org.springframework.data.redis.serializer.StringRedisSerializer
+      value-serializer: org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+      hash-key-serializer: org.springframework.data.redis.serializer.StringRedisSerializer
+      hash-value-serializer: org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
+
+# 4. 多级缓存配置
+cache:
+  # 一级缓存 (本地缓存)
+  level1:
+    type: caffeine
+    spec: maximumSize=10000,expireAfterWrite=300s,expireAfterAccess=60s
+    enabled: true
+  # 二级缓存 (Redis)
+  level2:
+    type: redis
+    ttl: 600s
+    max-idle-time: 300s
+    enabled: true
+  # 三级缓存 (数据库)
+  level3:
+    type: database
+    enabled: true
+
+# 5. 缓存策略配置
+cache-strategy:
+  # 缓存穿透防护
+  penetration:
+    enabled: true
+    null-value-ttl: 60s
+    max-null-count: 1000
+  # 缓存雪崩防护
+  avalanche:
+    enabled: true
+    random-ttl: true
+    random-range: 0.1
+  # 缓存击穿防护
+  breakdown:
+    enabled: true
+    lock-timeout: 5s
+    retry-count: 3
+  # 缓存预热
+  warmup:
+    enabled: true
+    async: true
+    batch-size: 100
+    delay: 30s
+
+# 6. 缓存监控配置
+cache-monitoring:
+  # 指标配置
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        cache.gets: true
+        cache.puts: true
+        cache.evictions: true
+      percentiles:
+        cache.gets: 0.5, 0.95, 0.99
+        cache.puts: 0.5, 0.95, 0.99
+        cache.evictions: 0.5, 0.95, 0.99
+  # 日志配置
+  logging:
+    enabled: true
+    level: INFO
+    slow-query-threshold: 100ms
+
+# 7. 缓存清理配置
+cache-cleanup:
+  # 定时清理
+  scheduled:
+    enabled: true
+    cron: "0 0 2 * * ?"  # 每天凌晨2点
+    batch-size: 1000
+  # 手动清理
+  manual:
+    enabled: true
+    batch-size: 100
+  # 自动清理
+  automatic:
+    enabled: true
+    threshold: 0.8
+    interval: 300s
+
+# 8. 缓存一致性配置
+cache-consistency:
+  # 最终一致性
+  eventual:
+    enabled: true
+    delay: 1s
+    retry-count: 3
+  # 强一致性
+  strong:
+    enabled: false
+    timeout: 5s
+    retry-count: 3
+  # 弱一致性
+  weak:
+    enabled: false
+    ttl: 60s
+
+# 9. 缓存分区配置
+cache-partition:
+  # 按业务分区
+  business:
+    user: "user:"
+    config: "config:"
+    session: "session:"
+    api: "api:"
+    static: "static:"
+  # 按数据类型分区
+  data-type:
+    string: "str:"
+    hash: "hash:"
+    list: "list:"
+    set: "set:"
+    zset: "zset:"
+
+# 10. 缓存性能优化
+cache-performance:
+  # 异步操作
+  async:
+    enabled: true
+    thread-pool-size: 10
+    queue-capacity: 1000
+  # 批量操作
+  batch:
+    enabled: true
+    batch-size: 100
+    timeout: 5s
+  # 管道操作
+  pipeline:
+    enabled: true
+    batch-size: 100
+    timeout: 5s
+  # 压缩
+  compression:
+    enabled: true
+    algorithm: gzip
+    threshold: 1024

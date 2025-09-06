@@ -7,7 +7,7 @@
 #######################
 # Build stage - 优化构建阶段
 #######################
-FROM eclipse-temurin:17-jdk-jammy AS build
+FROM eclipse-temurin:24-jdk-jammy AS build
 
 WORKDIR /app
 
@@ -118,7 +118,7 @@ RUN chmod +x /app/entrypoint.sh
 #######################
 # Runtime stage - 优化运行阶段
 #######################
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:24-jre-jammy
 
 WORKDIR /app
 
