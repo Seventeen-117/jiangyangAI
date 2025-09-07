@@ -11,7 +11,7 @@ spring:
       maximum-pool-size: 100
       minimum-idle: 10
       idle-timeout: 300000
-      auto-commit: true
+      auto-commit: false  # 禁用自动提交，让 JPA 事务管理器控制事务
       pool-name: DatebookHikariCP
       max-lifetime: 1800000
       connection-timeout: 30000
@@ -21,15 +21,16 @@ spring:
       
     # Quartz数据源配置
     quartz:
-      url: ${spring.datasource.url}
-      username: ${spring.datasource.username}
-      password: ${spring.datasource.password}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true&defaultFetchSize=1000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+      username: bgtech
+      password: Zly689258..
       hikari:
         maximum-pool-size: 50
         minimum-idle: 10
         idle-timeout: 300000
-        auto-commit: true
-        pool-name: DatebookHikariCP
+        auto-commit: false  # 禁用自动提交，让事务管理器控制事务
+        pool-name: QuartzHikariCP
         max-lifetime: 1800000
         connection-timeout: 30000
         connection-test-query: SELECT 1

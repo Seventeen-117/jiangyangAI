@@ -19,9 +19,40 @@ spring:
       max-lifetime: 1800000
       connection-test-query: SELECT 1
       connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+      auto-commit: false  # 禁用自动提交，让 JPA 事务管理器控制事务
     # 禁用内嵌数据库自动接管，防止落入 HSQLDB
     embedded-database-connection: none
   
+  # 禁用 HSQLDB 自动配置，但保留 JPA 支持
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration
+  
+  # JPA/Hibernate 配置 - 为 whitebox-testing 模块提供支持
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 不自动创建表，由 Flyway 管理
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        connection:
+          provider_disables_autocommit: false  # 让连接池控制 autocommit
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+    # 确保 JPA 使用与主数据源相同的配置
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
   # Flyway配置 - MySQL 8.0+ 兼容性
   flyway:
     enabled: true
@@ -46,12 +77,13 @@ spring:
             username: ${DB_USERNAME:bgtech}
             password: ${DB_PASSWORD:Zly689258..}
             driver-class-name: com.mysql.cj.jdbc.Driver
+            initialize-schema: never  # 不自动创建表，使用已创建的表
   
-  # Quartz配置 - 解决Quartz表不存在问题
+  # Quartz配置 - 直接配置 MySQL 数据源
   quartz:
     job-store-type: jdbc
     jdbc:
-      initialize-schema: always  # 自动创建Quartz表
+      initialize-schema: never  # 不自动创建表，使用已创建的表
       platform: mysql
     properties:
       org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
@@ -65,13 +97,14 @@ spring:
       org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread: true
       org.quartz.scheduler.instanceName: msScheduler
       org.quartz.scheduler.instanceId: AUTO
-      # 强制 Quartz 使用 MySQL 数据源，而不是内置 HSQLDB
+      # 直接配置 MySQL 数据源
       org.quartz.jobStore.dataSource: quartz
       org.quartz.dataSource.quartz.driver: com.mysql.cj.jdbc.Driver
-      org.quartz.dataSource.quartz.URL: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      org.quartz.dataSource.quartz.user: ${DB_USERNAME:bgtech}
-      org.quartz.dataSource.quartz.password: ${DB_PASSWORD:Zly689258..}
+      org.quartz.dataSource.quartz.URL: jdbc:mysql://8.133.246.113:3306/metersphere?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&allowMultiQueries=true&rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true&defaultFetchSize=1000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+      org.quartz.dataSource.quartz.user: bgtech
+      org.quartz.dataSource.quartz.password: Zly689258..
       org.quartz.dataSource.quartz.maxConnections: 10
+      org.quartz.dataSource.quartz.validationQuery: SELECT 1
   
   # Redis 配置
   data:
