@@ -1,6 +1,8 @@
 spring:
   application:
     name: metersphere
+  main:
+    allow-bean-definition-overriding: true
 
 whitebox:
   services:
