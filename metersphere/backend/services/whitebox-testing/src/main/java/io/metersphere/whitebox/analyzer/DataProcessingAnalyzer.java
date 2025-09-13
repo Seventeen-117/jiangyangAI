@@ -52,51 +52,55 @@ public class DataProcessingAnalyzer {
         List<ArrayBoundsIssue> issues = new ArrayList<>();
         
         // 检测数组访问越界
-        ArrayBoundsIssue issue1 = new ArrayBoundsIssue();
-        issue1.setIssueType("ARRAY_ACCESS_OUT_OF_BOUNDS");
-        issue1.setClassName("DataProcessor");
-        issue1.setMethodName("processArray");
-        issue1.setLineNumber(45);
-        issue1.setDescription("数组访问越界: 直接使用变量作为索引未检查边界");
-        issue1.setSeverity("CRITICAL");
-        issue1.setSuggestion("添加边界检查: 在访问数组前检查索引是否在有效范围内");
-        issue1.setArrayType("Access");
+        ArrayBoundsIssue issue1 = ArrayBoundsIssue.builder()
+                .issueType("ARRAY_ACCESS_OUT_OF_BOUNDS")
+                .className("DataProcessor")
+                .methodName("processArray")
+                .lineNumber(45)
+                .description("数组访问越界: 直接使用变量作为索引未检查边界")
+                .severity("CRITICAL")
+                .suggestion("添加边界检查: 在访问数组前检查索引是否在有效范围内")
+                .arrayType("Access")
+                .build();
         issues.add(issue1);
         
         // 检测循环中的数组越界
-        ArrayBoundsIssue issue2 = new ArrayBoundsIssue();
-        issue2.setIssueType("ARRAY_BOUNDS_IN_LOOP");
-        issue2.setClassName("ReportGenerator");
-        issue2.setMethodName("generateReport");
-        issue2.setLineNumber(67);
-        issue2.setDescription("循环中的数组越界: 循环条件使用错误的数组长度");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("修正循环条件: 确保循环条件与数组长度匹配");
-        issue2.setArrayType("Loop");
+        ArrayBoundsIssue issue2 = ArrayBoundsIssue.builder()
+                .issueType("ARRAY_BOUNDS_IN_LOOP")
+                .className("ReportGenerator")
+                .methodName("generateReport")
+                .lineNumber(67)
+                .description("循环中的数组越界: 循环条件使用错误的数组长度")
+                .severity("HIGH")
+                .suggestion("修正循环条件: 确保循环条件与数组长度匹配")
+                .arrayType("Loop")
+                .build();
         issues.add(issue2);
         
         // 检测多维数组越界
-        ArrayBoundsIssue issue3 = new ArrayBoundsIssue();
-        issue3.setIssueType("MULTIDIMENSIONAL_ARRAY_BOUNDS");
-        issue3.setClassName("MatrixProcessor");
-        issue3.setMethodName("processMatrix");
-        issue3.setLineNumber(89);
-        issue3.setDescription("多维数组越界: 只检查了第一维边界，未检查第二维");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("检查所有维度: 对多维数组的每个维度都进行边界检查");
-        issue3.setArrayType("Multidimensional");
+        ArrayBoundsIssue issue3 = ArrayBoundsIssue.builder()
+                .issueType("MULTIDIMENSIONAL_ARRAY_BOUNDS")
+                .className("MatrixProcessor")
+                .methodName("processMatrix")
+                .lineNumber(89)
+                .description("多维数组越界: 只检查了第一维边界，未检查第二维")
+                .severity("HIGH")
+                .suggestion("检查所有维度: 对多维数组的每个维度都进行边界检查")
+                .arrayType("Multidimensional")
+                .build();
         issues.add(issue3);
         
         // 检测集合转数组越界
-        ArrayBoundsIssue issue4 = new ArrayBoundsIssue();
-        issue4.setIssueType("COLLECTION_TO_ARRAY_BOUNDS");
-        issue4.setClassName("ListProcessor");
-        issue4.setMethodName("processList");
-        issue4.setLineNumber(123);
-        issue4.setDescription("集合转数组越界: 集合大小改变后未重新检查数组边界");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("重新检查边界: 在集合大小改变后重新验证数组边界");
-        issue4.setArrayType("Collection");
+        ArrayBoundsIssue issue4 = ArrayBoundsIssue.builder()
+                .issueType("COLLECTION_TO_ARRAY_BOUNDS")
+                .className("ListProcessor")
+                .methodName("processList")
+                .lineNumber(123)
+                .description("集合转数组越界: 集合大小改变后未重新检查数组边界")
+                .severity("MEDIUM")
+                .suggestion("重新检查边界: 在集合大小改变后重新验证数组边界")
+                .arrayType("Collection")
+                .build();
         issues.add(issue4);
         
         result.setArrayBoundsIssues(issues);
@@ -109,51 +113,55 @@ public class DataProcessingAnalyzer {
         List<TypeConversionIssue> issues = new ArrayList<>();
         
         // 检测不安全的类型转换
-        TypeConversionIssue issue1 = new TypeConversionIssue();
-        issue1.setIssueType("UNSAFE_TYPE_CASTING");
-        issue1.setClassName("ObjectProcessor");
-        issue1.setMethodName("processObject");
-        issue1.setLineNumber(34);
-        issue1.setDescription("不安全的类型转换: 未使用instanceof检查直接强制转换");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("添加类型检查: 使用instanceof检查后再进行类型转换");
-        issue1.setConversionType("Unsafe");
+        TypeConversionIssue issue1 = TypeConversionIssue.builder()
+                .issueType("UNSAFE_TYPE_CASTING")
+                .className("ObjectProcessor")
+                .methodName("processObject")
+                .lineNumber(34)
+                .description("不安全的类型转换: 未使用instanceof检查直接强制转换")
+                .severity("HIGH")
+                .suggestion("添加类型检查: 使用instanceof检查后再进行类型转换")
+                .conversionType("Unsafe")
+                .build();
         issues.add(issue1);
         
         // 检测数值类型转换溢出
-        TypeConversionIssue issue2 = new TypeConversionIssue();
-        issue2.setIssueType("NUMERIC_CONVERSION_OVERFLOW");
-        issue2.setClassName("NumberProcessor");
-        issue2.setMethodName("convertNumber");
-        issue2.setLineNumber(56);
-        issue2.setDescription("数值类型转换溢出: int转byte时可能丢失数据");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("检查数值范围: 在转换前检查数值是否在目标类型范围内");
-        issue2.setConversionType("Overflow");
+        TypeConversionIssue issue2 = TypeConversionIssue.builder()
+                .issueType("NUMERIC_CONVERSION_OVERFLOW")
+                .className("NumberProcessor")
+                .methodName("convertNumber")
+                .lineNumber(56)
+                .description("数值类型转换溢出: int转byte时可能丢失数据")
+                .severity("HIGH")
+                .suggestion("检查数值范围: 在转换前检查数值是否在目标类型范围内")
+                .conversionType("Overflow")
+                .build();
         issues.add(issue2);
         
         // 检测字符串转数字格式错误
-        TypeConversionIssue issue3 = new TypeConversionIssue();
-        issue3.setIssueType("STRING_TO_NUMBER_FORMAT_ERROR");
-        issue3.setClassName("StringProcessor");
-        issue3.setMethodName("parseNumber");
-        issue3.setLineNumber(78);
-        issue3.setDescription("字符串转数字格式错误: 未处理NumberFormatException");
-        issue3.setSeverity("CRITICAL");
-        issue3.setSuggestion("添加异常处理: 使用try-catch处理NumberFormatException");
-        issue3.setConversionType("Format");
+        TypeConversionIssue issue3 = TypeConversionIssue.builder()
+                .issueType("STRING_TO_NUMBER_FORMAT_ERROR")
+                .className("StringProcessor")
+                .methodName("parseNumber")
+                .lineNumber(78)
+                .description("字符串转数字格式错误: 未处理NumberFormatException")
+                .severity("CRITICAL")
+                .suggestion("添加异常处理: 使用try-catch处理NumberFormatException")
+                .conversionType("Format")
+                .build();
         issues.add(issue3);
         
         // 检测自动装箱拆箱问题
-        TypeConversionIssue issue4 = new TypeConversionIssue();
-        issue4.setIssueType("AUTOBOXING_UNBOXING_ISSUE");
-        issue4.setClassName("BoxingProcessor");
-        issue4.setMethodName("processBoxing");
-        issue4.setLineNumber(90);
-        issue4.setDescription("自动装箱拆箱问题: 在循环中频繁装箱拆箱影响性能");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("避免频繁装箱拆箱: 使用基本类型或缓存包装类实例");
-        issue4.setConversionType("Autoboxing");
+        TypeConversionIssue issue4 = TypeConversionIssue.builder()
+                .issueType("AUTOBOXING_UNBOXING_ISSUE")
+                .className("BoxingProcessor")
+                .methodName("processBoxing")
+                .lineNumber(90)
+                .description("自动装箱拆箱问题: 在循环中频繁装箱拆箱影响性能")
+                .severity("MEDIUM")
+                .suggestion("避免频繁装箱拆箱: 使用基本类型或缓存包装类实例")
+                .conversionType("Autoboxing")
+                .build();
         issues.add(issue4);
         
         result.setTypeConversionIssues(issues);
@@ -166,51 +174,55 @@ public class DataProcessingAnalyzer {
         List<NullPointerExceptionIssue> issues = new ArrayList<>();
         
         // 检测方法调用空指针
-        NullPointerExceptionIssue issue1 = new NullPointerExceptionIssue();
-        issue1.setIssueType("NULL_POINTER_METHOD_INVOCATION");
-        issue1.setClassName("ServiceProcessor");
-        issue1.setMethodName("processService");
-        issue1.setLineNumber(45);
-        issue1.setDescription("方法调用空指针: 调用可能为null的对象方法");
-        issue1.setSeverity("CRITICAL");
-        issue1.setSuggestion("添加空值检查: 在调用方法前检查对象是否为null");
-        issue1.setNullType("Method");
+        NullPointerExceptionIssue issue1 = NullPointerExceptionIssue.builder()
+                .issueType("NULL_POINTER_METHOD_INVOCATION")
+                .className("ServiceProcessor")
+                .methodName("processService")
+                .lineNumber(45)
+                .description("方法调用空指针: 调用可能为null的对象方法")
+                .severity("CRITICAL")
+                .suggestion("添加空值检查: 在调用方法前检查对象是否为null")
+                .nullType("Method")
+                .build();
         issues.add(issue1);
         
         // 检测数组访问空指针
-        NullPointerExceptionIssue issue2 = new NullPointerExceptionIssue();
-        issue2.setIssueType("NULL_POINTER_ARRAY_ACCESS");
-        issue2.setClassName("ArrayProcessor");
-        issue2.setMethodName("processArray");
-        issue2.setLineNumber(67);
-        issue2.setDescription("数组访问空指针: 访问未初始化的数组");
-        issue2.setSeverity("CRITICAL");
-        issue2.setSuggestion("初始化数组: 确保数组在使用前已被正确初始化");
-        issue2.setNullType("Array");
+        NullPointerExceptionIssue issue2 = NullPointerExceptionIssue.builder()
+                .issueType("NULL_POINTER_ARRAY_ACCESS")
+                .className("ArrayProcessor")
+                .methodName("processArray")
+                .lineNumber(67)
+                .description("数组访问空指针: 访问未初始化的数组")
+                .severity("CRITICAL")
+                .suggestion("初始化数组: 确保数组在使用前已被正确初始化")
+                .nullType("Array")
+                .build();
         issues.add(issue2);
         
         // 检测集合操作空指针
-        NullPointerExceptionIssue issue3 = new NullPointerExceptionIssue();
-        issue3.setIssueType("NULL_POINTER_COLLECTION_OPERATION");
-        issue3.setClassName("CollectionProcessor");
-        issue3.setMethodName("processCollection");
-        issue3.setLineNumber(89);
-        issue3.setDescription("集合操作空指针: 对null集合执行操作");
-        issue3.setSeverity("CRITICAL");
-        issue3.setSuggestion("检查集合是否为null: 在操作集合前检查是否为null");
-        issue3.setNullType("Collection");
+        NullPointerExceptionIssue issue3 = NullPointerExceptionIssue.builder()
+                .issueType("NULL_POINTER_COLLECTION_OPERATION")
+                .className("CollectionProcessor")
+                .methodName("processCollection")
+                .lineNumber(89)
+                .description("集合操作空指针: 对null集合执行操作")
+                .severity("CRITICAL")
+                .suggestion("检查集合是否为null: 在操作集合前检查是否为null")
+                .nullType("Collection")
+                .build();
         issues.add(issue3);
         
         // 检测链式调用空指针
-        NullPointerExceptionIssue issue4 = new NullPointerExceptionIssue();
-        issue4.setIssueType("NULL_POINTER_CHAINED_INVOCATION");
-        issue4.setClassName("ChainProcessor");
-        issue4.setMethodName("processChain");
-        issue4.setLineNumber(123);
-        issue4.setDescription("链式调用空指针: 链式调用中某个对象可能为null");
-        issue4.setSeverity("HIGH");
-        issue4.setSuggestion("分步检查空值: 将链式调用分解并分别检查每个对象");
-        issue4.setNullType("Chain");
+        NullPointerExceptionIssue issue4 = NullPointerExceptionIssue.builder()
+                .issueType("NULL_POINTER_CHAINED_INVOCATION")
+                .className("ChainProcessor")
+                .methodName("processChain")
+                .lineNumber(123)
+                .description("链式调用空指针: 链式调用中某个对象可能为null")
+                .severity("HIGH")
+                .suggestion("分步检查空值: 将链式调用分解并分别检查每个对象")
+                .nullType("Chain")
+                .build();
         issues.add(issue4);
         
         result.setNullPointerIssues(issues);
@@ -223,51 +235,55 @@ public class DataProcessingAnalyzer {
         List<DataValidationIssue> issues = new ArrayList<>();
         
         // 检测输入数据未验证
-        DataValidationIssue issue1 = new DataValidationIssue();
-        issue1.setIssueType("INPUT_DATA_NOT_VALIDATED");
-        issue1.setClassName("InputProcessor");
-        issue1.setMethodName("processInput");
-        issue1.setLineNumber(34);
-        issue1.setDescription("输入数据未验证: 直接使用用户输入未进行验证");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("添加数据验证: 对所有输入数据进行有效性检查");
-        issue1.setValidationType("Input");
+        DataValidationIssue issue1 = DataValidationIssue.builder()
+                .issueType("INPUT_DATA_NOT_VALIDATED")
+                .className("InputProcessor")
+                .methodName("processInput")
+                .lineNumber(34)
+                .description("输入数据未验证: 直接使用用户输入未进行验证")
+                .severity("HIGH")
+                .suggestion("添加数据验证: 对所有输入数据进行有效性检查")
+                .validationType("Input")
+                .build();
         issues.add(issue1);
         
         // 检测边界条件未检查
-        DataValidationIssue issue2 = new DataValidationIssue();
-        issue2.setIssueType("BOUNDARY_CONDITIONS_NOT_CHECKED");
-        issue2.setClassName("BoundaryProcessor");
-        issue2.setMethodName("processBoundary");
-        issue2.setLineNumber(56);
-        issue2.setDescription("边界条件未检查: 未检查数组、字符串的边界条件");
-        issue2.setSeverity("MEDIUM");
-        issue2.setSuggestion("检查边界条件: 对所有边界情况进行测试和验证");
-        issue2.setValidationType("Boundary");
+        DataValidationIssue issue2 = DataValidationIssue.builder()
+                .issueType("BOUNDARY_CONDITIONS_NOT_CHECKED")
+                .className("BoundaryProcessor")
+                .methodName("processBoundary")
+                .lineNumber(56)
+                .description("边界条件未检查: 未检查数组、字符串的边界条件")
+                .severity("MEDIUM")
+                .suggestion("检查边界条件: 对所有边界情况进行测试和验证")
+                .validationType("Boundary")
+                .build();
         issues.add(issue2);
         
         // 检测数据一致性问题
-        DataValidationIssue issue3 = new DataValidationIssue();
-        issue3.setIssueType("DATA_CONSISTENCY_ISSUE");
-        issue3.setClassName("DataProcessor");
-        issue3.setMethodName("processData");
-        issue3.setLineNumber(78);
-        issue3.setDescription("数据一致性问题: 多个相关数据未保持一致性");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("确保数据一致性: 在修改相关数据时保持一致性");
-        issue3.setValidationType("Consistency");
+        DataValidationIssue issue3 = DataValidationIssue.builder()
+                .issueType("DATA_CONSISTENCY_ISSUE")
+                .className("DataProcessor")
+                .methodName("processData")
+                .lineNumber(78)
+                .description("数据一致性问题: 多个相关数据未保持一致性")
+                .severity("HIGH")
+                .suggestion("确保数据一致性: 在修改相关数据时保持一致性")
+                .validationType("Consistency")
+                .build();
         issues.add(issue3);
         
         // 检测数据完整性问题
-        DataValidationIssue issue4 = new DataValidationIssue();
-        issue4.setIssueType("DATA_INTEGRITY_ISSUE");
-        issue4.setClassName("IntegrityProcessor");
-        issue4.setMethodName("processIntegrity");
-        issue4.setLineNumber(90);
-        issue4.setDescription("数据完整性问题: 关键字段未设置或设置错误");
-        issue4.setSeverity("HIGH");
-        issue4.setSuggestion("验证数据完整性: 确保所有必需字段都已正确设置");
-        issue4.setValidationType("Integrity");
+        DataValidationIssue issue4 = DataValidationIssue.builder()
+                .issueType("DATA_INTEGRITY_ISSUE")
+                .className("IntegrityProcessor")
+                .methodName("processIntegrity")
+                .lineNumber(90)
+                .description("数据完整性问题: 关键字段未设置或设置错误")
+                .severity("HIGH")
+                .suggestion("验证数据完整性: 确保所有必需字段都已正确设置")
+                .validationType("Integrity")
+                .build();
         issues.add(issue4);
         
         result.setDataValidationIssues(issues);

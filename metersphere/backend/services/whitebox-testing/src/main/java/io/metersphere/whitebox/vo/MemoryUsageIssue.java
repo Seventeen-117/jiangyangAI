@@ -1,9 +1,13 @@
 package io.metersphere.whitebox.vo;
 
-import lombok.Data; /**
+import lombok.Data;
+import lombok.Builder;
+
+ /**
  * 内存使用问题
  */
 @Data
+@Builder
 public class MemoryUsageIssue {
     private String issueType;
     private String className;

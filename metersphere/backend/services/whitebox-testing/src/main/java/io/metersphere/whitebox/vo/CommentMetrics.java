@@ -1,8 +1,10 @@
 package io.metersphere.whitebox.vo;
 
 import lombok.Data;
+import lombok.Builder;
 
 @Data
+@Builder
 public class CommentMetrics {
     private String serviceName;
     private double commentCoverage;

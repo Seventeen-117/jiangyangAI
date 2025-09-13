@@ -58,51 +58,55 @@ public class PerformanceResourceAnalyzer {
         List<ResourceLeakIssue> issues = new ArrayList<>();
         
         // 检测数据库连接未关闭
-        ResourceLeakIssue issue1 = new ResourceLeakIssue();
-        issue1.setIssueType("DATABASE_CONNECTION_LEAK");
-        issue1.setClassName("DataService");
-        issue1.setMethodName("queryData");
-        issue1.setLineNumber(45);
-        issue1.setDescription("数据库连接泄漏: Connection未在finally块中关闭");
-        issue1.setSeverity("CRITICAL");
-        issue1.setSuggestion("使用try-with-resources: try (Connection conn = getConnection())");
-        issue1.setResourceType("Database Connection");
+        ResourceLeakIssue issue1 = ResourceLeakIssue.builder()
+                .issueType("DATABASE_CONNECTION_LEAK")
+                .className("DataService")
+                .methodName("queryData")
+                .lineNumber(45)
+                .description("数据库连接泄漏: Connection未在finally块中关闭")
+                .severity("CRITICAL")
+                .suggestion("使用try-with-resources: try (Connection conn = getConnection())")
+                .resourceType("Database Connection")
+                .build();
         issues.add(issue1);
         
         // 检测文件流未关闭
-        ResourceLeakIssue issue2 = new ResourceLeakIssue();
-        issue2.setIssueType("FILE_STREAM_LEAK");
-        issue2.setClassName("FileProcessor");
-        issue2.setMethodName("processFile");
-        issue2.setLineNumber(67);
-        issue2.setDescription("文件流泄漏: FileOutputStream未关闭，导致文件句柄耗尽");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("确保在finally块中关闭流: stream.close()");
-        issue2.setResourceType("File Stream");
+        ResourceLeakIssue issue2 = ResourceLeakIssue.builder()
+                .issueType("FILE_STREAM_LEAK")
+                .className("FileProcessor")
+                .methodName("processFile")
+                .lineNumber(67)
+                .description("文件流泄漏: FileOutputStream未关闭，导致文件句柄耗尽")
+                .severity("HIGH")
+                .suggestion("确保在finally块中关闭流: stream.close()")
+                .resourceType("File Stream")
+                .build();
         issues.add(issue2);
         
         // 检测线程未正确回收
-        ResourceLeakIssue issue3 = new ResourceLeakIssue();
-        issue3.setIssueType("THREAD_LEAK");
-        issue3.setClassName("TaskService");
-        issue3.setMethodName("executeTask");
-        issue3.setLineNumber(89);
-        issue3.setDescription("线程泄漏: 线程池未正确关闭，导致线程无法回收");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("正确关闭线程池: executorService.shutdown()");
-        issue3.setResourceType("Thread");
+        ResourceLeakIssue issue3 = ResourceLeakIssue.builder()
+                .issueType("THREAD_LEAK")
+                .className("TaskService")
+                .methodName("executeTask")
+                .lineNumber(89)
+                .description("线程泄漏: 线程池未正确关闭，导致线程无法回收")
+                .severity("HIGH")
+                .suggestion("正确关闭线程池: executorService.shutdown()")
+                .resourceType("Thread")
+                .build();
         issues.add(issue3);
         
         // 检测缓存未清理
-        ResourceLeakIssue issue4 = new ResourceLeakIssue();
-        issue4.setIssueType("CACHE_LEAK");
-        issue4.setClassName("CacheService");
-        issue4.setMethodName("putCache");
-        issue4.setLineNumber(123);
-        issue4.setDescription("缓存泄漏: 缓存未设置过期时间，可能导致内存泄漏");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("设置缓存过期时间: cache.put(key, value, ttl)");
-        issue4.setResourceType("Cache");
+        ResourceLeakIssue issue4 = ResourceLeakIssue.builder()
+                .issueType("CACHE_LEAK")
+                .className("CacheService")
+                .methodName("putCache")
+                .lineNumber(123)
+                .description("缓存泄漏: 缓存未设置过期时间，可能导致内存泄漏")
+                .severity("MEDIUM")
+                .suggestion("设置缓存过期时间: cache.put(key, value, ttl)")
+                .resourceType("Cache")
+                .build();
         issues.add(issue4);
         
         result.setResourceLeakIssues(issues);
@@ -114,52 +118,56 @@ public class PerformanceResourceAnalyzer {
     private void analyzeInefficientAlgorithms(String sourcePath, PerformanceResourceAnalysisResult result) {
         List<InefficientAlgorithmIssue> issues = new ArrayList<>();
         
-        // 检测O(n²)算法
-        InefficientAlgorithmIssue issue1 = new InefficientAlgorithmIssue();
-        issue1.setIssueType("O_N_SQUARED_ALGORITHM");
-        issue1.setClassName("UserService");
-        issue1.setMethodName("findDuplicateUsers");
-        issue1.setLineNumber(34);
-        issue1.setDescription("低效算法: 使用双层循环查找重复用户，时间复杂度O(n²)");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("使用Set或Map优化: 时间复杂度降为O(n)");
-        issue1.setAlgorithmType("Nested Loop");
+        // 检测算法复杂度问题
+        InefficientAlgorithmIssue issue1 = InefficientAlgorithmIssue.builder()
+                .issueType("INEFFICIENT_ALGORITHM")
+                .className("SortService")
+                .methodName("bubbleSort")
+                .lineNumber(23)
+                .description("算法复杂度问题: 使用冒泡排序O(n²)处理大数据集")
+                .severity("HIGH")
+                .suggestion("使用高效算法: 改用快速排序或归并排序O(n log n)")
+                .algorithmType("Sorting")
+                .build();
         issues.add(issue1);
         
-        // 检测重复计算
-        InefficientAlgorithmIssue issue2 = new InefficientAlgorithmIssue();
-        issue2.setIssueType("DUPLICATE_CALCULATION");
-        issue2.setClassName("CalculatorService");
-        issue2.setMethodName("calculateTotal");
-        issue2.setLineNumber(56);
-        issue2.setDescription("重复计算: 多次调用同一方法获取相同数据");
-        issue2.setSeverity("MEDIUM");
-        issue2.setSuggestion("缓存计算结果: 避免重复计算");
-        issue2.setAlgorithmType("Redundant Call");
+        // 检测数据库查询性能问题
+        InefficientAlgorithmIssue issue2 = InefficientAlgorithmIssue.builder()
+                .issueType("DATABASE_QUERY_PERFORMANCE")
+                .className("UserService")
+                .methodName("getAllUsers")
+                .lineNumber(45)
+                .description("数据库查询性能问题: 未使用索引导致全表扫描")
+                .severity("HIGH")
+                .suggestion("添加数据库索引: 在查询字段上创建索引")
+                .algorithmType("Database")
+                .build();
         issues.add(issue2);
         
-        // 检测死代码
-        InefficientAlgorithmIssue issue3 = new InefficientAlgorithmIssue();
-        issue3.setIssueType("DEAD_CODE");
-        issue3.setClassName("LegacyService");
-        issue3.setMethodName("oldMethod");
-        issue3.setLineNumber(78);
-        issue3.setDescription("死代码: 方法从未被调用，占用内存空间");
-        issue3.setSeverity("LOW");
-        issue3.setSuggestion("删除未使用的代码: 减少代码体积");
-        issue3.setAlgorithmType("Unused Code");
+        // 检测缓存使用不当
+        InefficientAlgorithmIssue issue3 = InefficientAlgorithmIssue.builder()
+                .issueType("CACHE_USAGE_INEFFICIENT")
+                .className("CacheService")
+                .methodName("getCachedData")
+                .lineNumber(67)
+                .description("缓存使用不当: 缓存命中率低，频繁回源")
+                .severity("MEDIUM")
+                .suggestion("优化缓存策略: 调整过期时间和缓存键")
+                .algorithmType("Caching")
+                .build();
         issues.add(issue3);
         
         // 检测低效字符串操作
-        InefficientAlgorithmIssue issue4 = new InefficientAlgorithmIssue();
-        issue4.setIssueType("INEFFICIENT_STRING_OPERATION");
-        issue4.setClassName("StringProcessor");
-        issue4.setMethodName("buildString");
-        issue4.setLineNumber(90);
-        issue4.setDescription("低效字符串操作: 使用String拼接，应使用StringBuilder");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("使用StringBuilder: 提高字符串拼接性能");
-        issue4.setAlgorithmType("String Concatenation");
+        InefficientAlgorithmIssue issue4 = InefficientAlgorithmIssue.builder()
+                .issueType("INEFFICIENT_STRING_OPERATION")
+                .className("StringProcessor")
+                .methodName("buildString")
+                .lineNumber(90)
+                .description("低效字符串操作: 使用String拼接，应使用StringBuilder")
+                .severity("MEDIUM")
+                .suggestion("使用StringBuilder: 提高字符串拼接性能")
+                .algorithmType("String Concatenation")
+                .build();
         issues.add(issue4);
         
         result.setInefficientAlgorithmIssues(issues);
@@ -172,51 +180,55 @@ public class PerformanceResourceAnalyzer {
         List<MemoryUsageIssue> issues = new ArrayList<>();
         
         // 检测大对象创建
-        MemoryUsageIssue issue1 = new MemoryUsageIssue();
-        issue1.setIssueType("LARGE_OBJECT_CREATION");
-        issue1.setClassName("DataProcessor");
-        issue1.setMethodName("loadData");
-        issue1.setLineNumber(45);
-        issue1.setDescription("大对象创建: 一次性加载大量数据到内存");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("使用流式处理: 分批处理数据，避免内存溢出");
-        issue1.setMemoryType("Large Object");
+        MemoryUsageIssue issue1 = MemoryUsageIssue.builder()
+                .issueType("LARGE_OBJECT_CREATION")
+                .className("DataProcessor")
+                .methodName("loadData")
+                .lineNumber(45)
+                .description("大对象创建: 一次性加载大量数据到内存")
+                .severity("HIGH")
+                .suggestion("使用流式处理: 分批处理数据，避免内存溢出")
+                .memoryType("Large Object")
+                .build();
         issues.add(issue1);
         
         // 检测内存泄漏
-        MemoryUsageIssue issue2 = new MemoryUsageIssue();
-        issue2.setIssueType("MEMORY_LEAK");
-        issue2.setClassName("EventService");
-        issue2.setMethodName("addListener");
-        issue2.setLineNumber(67);
-        issue2.setDescription("内存泄漏: 事件监听器未正确移除");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("正确移除监听器: 在对象销毁时移除所有监听器");
-        issue2.setMemoryType("Event Listener");
+        MemoryUsageIssue issue2 = MemoryUsageIssue.builder()
+                .issueType("MEMORY_LEAK")
+                .className("EventService")
+                .methodName("addListener")
+                .lineNumber(67)
+                .description("内存泄漏: 事件监听器未正确移除")
+                .severity("HIGH")
+                .suggestion("正确移除监听器: 在对象销毁时移除所有监听器")
+                .memoryType("Event Listener")
+                .build();
         issues.add(issue2);
         
         // 检测集合未清理
-        MemoryUsageIssue issue3 = new MemoryUsageIssue();
-        issue3.setIssueType("COLLECTION_NOT_CLEARED");
-        issue3.setClassName("CacheService");
-        issue3.setMethodName("updateCache");
-        issue3.setLineNumber(89);
-        issue3.setDescription("集合未清理: 缓存集合持续增长，未清理过期数据");
-        issue3.setSeverity("MEDIUM");
-        issue3.setSuggestion("定期清理集合: 使用定时任务清理过期数据");
-        issue3.setMemoryType("Collection");
+        MemoryUsageIssue issue3 = MemoryUsageIssue.builder()
+                .issueType("COLLECTION_NOT_CLEARED")
+                .className("CacheService")
+                .methodName("updateCache")
+                .lineNumber(89)
+                .description("集合未清理: 缓存集合持续增长，未清理过期数据")
+                .severity("MEDIUM")
+                .suggestion("定期清理集合: 使用定时任务清理过期数据")
+                .memoryType("Collection")
+                .build();
         issues.add(issue3);
         
         // 检测静态变量滥用
-        MemoryUsageIssue issue4 = new MemoryUsageIssue();
-        issue4.setIssueType("STATIC_VARIABLE_ABUSE");
-        issue4.setClassName("ConfigService");
-        issue4.setMethodName("loadConfig");
-        issue4.setLineNumber(123);
-        issue4.setDescription("静态变量滥用: 大量数据存储在静态变量中");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("减少静态变量使用: 使用实例变量或缓存");
-        issue4.setMemoryType("Static Variable");
+        MemoryUsageIssue issue4 = MemoryUsageIssue.builder()
+                .issueType("STATIC_VARIABLE_ABUSE")
+                .className("ConfigService")
+                .methodName("loadConfig")
+                .lineNumber(123)
+                .description("静态变量滥用: 大量数据存储在静态变量中")
+                .severity("MEDIUM")
+                .suggestion("减少静态变量使用: 使用实例变量或缓存")
+                .memoryType("Static Variable")
+                .build();
         issues.add(issue4);
         
         result.setMemoryUsageIssues(issues);
@@ -229,51 +241,55 @@ public class PerformanceResourceAnalyzer {
         List<ConcurrencyPerformanceIssue> issues = new ArrayList<>();
         
         // 检测同步性能问题
-        ConcurrencyPerformanceIssue issue1 = new ConcurrencyPerformanceIssue();
-        issue1.setIssueType("SYNCHRONIZATION_PERFORMANCE_ISSUE");
-        issue1.setClassName("CounterService");
-        issue1.setMethodName("increment");
-        issue1.setLineNumber(34);
-        issue1.setDescription("同步性能问题: 使用synchronized方法，性能较差");
-        issue1.setSeverity("MEDIUM");
-        issue1.setSuggestion("使用AtomicInteger: 提高并发性能");
-        issue1.setConcurrencyType("Synchronization");
+        ConcurrencyPerformanceIssue issue1 = ConcurrencyPerformanceIssue.builder()
+                .issueType("SYNCHRONIZATION_PERFORMANCE_ISSUE")
+                .className("CounterService")
+                .methodName("increment")
+                .lineNumber(34)
+                .description("同步性能问题: 使用synchronized方法，性能较差")
+                .severity("MEDIUM")
+                .suggestion("使用AtomicInteger: 提高并发性能")
+                .concurrencyType("Synchronization")
+                .build();
         issues.add(issue1);
         
         // 检测锁竞争
-        ConcurrencyPerformanceIssue issue2 = new ConcurrencyPerformanceIssue();
-        issue2.setIssueType("LOCK_CONTENTION");
-        issue2.setClassName("ResourceService");
-        issue2.setMethodName("accessResource");
-        issue2.setLineNumber(56);
-        issue2.setDescription("锁竞争: 多个线程竞争同一锁，性能下降");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("减少锁粒度: 使用细粒度锁或无锁数据结构");
-        issue2.setConcurrencyType("Lock Contention");
+        ConcurrencyPerformanceIssue issue2 = ConcurrencyPerformanceIssue.builder()
+                .issueType("LOCK_CONTENTION")
+                .className("ResourceService")
+                .methodName("accessResource")
+                .lineNumber(56)
+                .description("锁竞争: 多个线程竞争同一锁，性能下降")
+                .severity("HIGH")
+                .suggestion("减少锁粒度: 使用细粒度锁或无锁数据结构")
+                .concurrencyType("Lock Contention")
+                .build();
         issues.add(issue2);
         
         // 检测线程池配置问题
-        ConcurrencyPerformanceIssue issue3 = new ConcurrencyPerformanceIssue();
-        issue3.setIssueType("THREAD_POOL_CONFIGURATION_ISSUE");
-        issue3.setClassName("TaskService");
-        issue3.setMethodName("executeTasks");
-        issue3.setLineNumber(78);
-        issue3.setDescription("线程池配置问题: 线程池大小配置不当");
-        issue3.setSeverity("MEDIUM");
-        issue3.setSuggestion("优化线程池配置: 根据CPU核心数设置合适的线程数");
-        issue3.setConcurrencyType("Thread Pool");
+        ConcurrencyPerformanceIssue issue3 = ConcurrencyPerformanceIssue.builder()
+                .issueType("THREAD_POOL_CONFIGURATION_ISSUE")
+                .className("TaskService")
+                .methodName("executeTasks")
+                .lineNumber(78)
+                .description("线程池配置问题: 线程池大小配置不当")
+                .severity("MEDIUM")
+                .suggestion("优化线程池配置: 根据CPU核心数设置合适的线程数")
+                .concurrencyType("Thread Pool")
+                .build();
         issues.add(issue3);
         
         // 检测死锁风险
-        ConcurrencyPerformanceIssue issue4 = new ConcurrencyPerformanceIssue();
-        issue4.setIssueType("DEADLOCK_RISK");
-        issue4.setClassName("TransferService");
-        issue4.setMethodName("transfer");
-        issue4.setLineNumber(90);
-        issue4.setDescription("死锁风险: 多个锁的获取顺序不一致");
-        issue4.setSeverity("CRITICAL");
-        issue4.setSuggestion("统一锁获取顺序: 避免死锁");
-        issue4.setConcurrencyType("Deadlock");
+        ConcurrencyPerformanceIssue issue4 = ConcurrencyPerformanceIssue.builder()
+                .issueType("DEADLOCK_RISK")
+                .className("TransferService")
+                .methodName("transfer")
+                .lineNumber(90)
+                .description("死锁风险: 多个锁的获取顺序不一致")
+                .severity("CRITICAL")
+                .suggestion("统一锁获取顺序: 避免死锁")
+                .concurrencyType("Deadlock")
+                .build();
         issues.add(issue4);
         
         result.setConcurrencyPerformanceIssues(issues);

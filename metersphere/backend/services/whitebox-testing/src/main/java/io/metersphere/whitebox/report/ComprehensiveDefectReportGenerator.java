@@ -37,10 +37,11 @@ public class ComprehensiveDefectReportGenerator {
      * 生成综合缺陷检测报告
      */
     public ComprehensiveDefectReport generateComprehensiveReport(String serviceName, String sourcePath) {
-        ComprehensiveDefectReport report = new ComprehensiveDefectReport();
-        report.setServiceName(serviceName);
-        report.setGeneratedTime(new Date());
-        report.setReportId(UUID.randomUUID().toString());
+        ComprehensiveDefectReport report = ComprehensiveDefectReport.builder()
+                .serviceName(serviceName)
+                .generatedTime(new Date())
+                .reportId(UUID.randomUUID().toString())
+                .build();
         
         try {
             // 1. 执行控制流分析
@@ -201,47 +202,52 @@ public class ComprehensiveDefectReportGenerator {
         
         // 根据缺陷类型生成修复建议
         if (report.getCriticalIssues() > 0) {
-            FixRecommendation rec1 = new FixRecommendation();
-            rec1.setPriority("URGENT");
-            rec1.setCategory("Critical Issues");
-            rec1.setDescription("立即修复所有严重缺陷，这些缺陷可能导致系统崩溃或安全漏洞");
-            rec1.setEstimatedEffort("2-5 days");
+            FixRecommendation rec1 = FixRecommendation.builder()
+                    .priority("URGENT")
+                    .category("Critical Issues")
+                    .description("立即修复所有严重缺陷，这些缺陷可能导致系统崩溃或安全漏洞")
+                    .estimatedEffort("2-5 days")
+                    .build();
             recommendations.add(rec1);
         }
         
         if (report.getHighIssues() > 0) {
-            FixRecommendation rec2 = new FixRecommendation();
-            rec2.setPriority("HIGH");
-            rec2.setCategory("High Priority Issues");
-            rec2.setDescription("优先修复高风险缺陷，这些缺陷可能影响系统稳定性");
-            rec2.setEstimatedEffort("1-3 days");
+            FixRecommendation rec2 = FixRecommendation.builder()
+                    .priority("HIGH")
+                    .category("High Priority Issues")
+                    .description("优先修复高风险缺陷，这些缺陷可能影响系统稳定性")
+                    .estimatedEffort("1-3 days")
+                    .build();
             recommendations.add(rec2);
         }
         
         if (report.getMediumIssues() > 0) {
-            FixRecommendation rec3 = new FixRecommendation();
-            rec3.setPriority("MEDIUM");
-            rec3.setCategory("Medium Priority Issues");
-            rec3.setDescription("逐步修复中等风险缺陷，提升代码质量");
-            rec3.setEstimatedEffort("3-7 days");
+            FixRecommendation rec3 = FixRecommendation.builder()
+                    .priority("MEDIUM")
+                    .category("Medium Priority Issues")
+                    .description("逐步修复中等风险缺陷，提升代码质量")
+                    .estimatedEffort("3-7 days")
+                    .build();
             recommendations.add(rec3);
         }
         
         if (report.getLowIssues() > 0) {
-            FixRecommendation rec4 = new FixRecommendation();
-            rec4.setPriority("LOW");
-            rec4.setCategory("Low Priority Issues");
-            rec4.setDescription("可选择性修复低风险缺陷，优化代码可维护性");
-            rec4.setEstimatedEffort("1-2 days");
+            FixRecommendation rec4 = FixRecommendation.builder()
+                    .priority("LOW")
+                    .category("Low Priority Issues")
+                    .description("可选择性修复低风险缺陷，优化代码可维护性")
+                    .estimatedEffort("1-2 days")
+                    .build();
             recommendations.add(rec4);
         }
         
         // 添加通用建议
-        FixRecommendation rec5 = new FixRecommendation();
-        rec5.setPriority("GENERAL");
-        rec5.setCategory("Code Quality Improvement");
-        rec5.setDescription("建议建立代码审查机制，定期进行白盒测试，持续改进代码质量");
-        rec5.setEstimatedEffort("Ongoing");
+        FixRecommendation rec5 = FixRecommendation.builder()
+                .priority("GENERAL")
+                .category("Code Quality Improvement")
+                .description("建议建立代码审查机制，定期进行白盒测试，持续改进代码质量")
+                .estimatedEffort("Ongoing")
+                .build();
         recommendations.add(rec5);
         
         report.setFixRecommendations(recommendations);
@@ -251,17 +257,16 @@ public class ComprehensiveDefectReportGenerator {
      * 生成报告摘要
      */
     public ReportSummary generateReportSummary(ComprehensiveDefectReport report) {
-        ReportSummary summary = new ReportSummary();
-        summary.setServiceName(report.getServiceName());
-        summary.setGeneratedTime(report.getGeneratedTime());
-        summary.setTotalIssues(report.getTotalIssues());
-        summary.setCriticalIssues(report.getCriticalIssues());
-        summary.setHighIssues(report.getHighIssues());
-        summary.setMediumIssues(report.getMediumIssues());
-        summary.setLowIssues(report.getLowIssues());
-        summary.setRiskLevel(report.getRiskLevel());
-        summary.setRiskDescription(report.getRiskDescription());
-        
-        return summary;
+        return ReportSummary.builder()
+                .serviceName(report.getServiceName())
+                .generatedTime(report.getGeneratedTime())
+                .totalIssues(report.getTotalIssues())
+                .criticalIssues(report.getCriticalIssues())
+                .highIssues(report.getHighIssues())
+                .mediumIssues(report.getMediumIssues())
+                .lowIssues(report.getLowIssues())
+                .riskLevel(report.getRiskLevel())
+                .riskDescription(report.getRiskDescription())
+                .build();
     }
 }

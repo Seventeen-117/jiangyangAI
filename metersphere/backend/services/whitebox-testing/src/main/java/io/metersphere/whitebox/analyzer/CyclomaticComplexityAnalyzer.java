@@ -133,11 +133,12 @@ public class CyclomaticComplexityAnalyzer {
         public void visitEnd() {
             // 检查复杂度是否超过阈值
             if (complexity > 10) { // 阈值设为10
-                ComplexityViolation violation = new ComplexityViolation();
-                violation.setClassName(className);
-                violation.setMethodName(methodName);
-                violation.setComplexity(complexity);
-                violation.setThreshold(10);
+                ComplexityViolation violation = ComplexityViolation.builder()
+                        .className(className)
+                        .methodName(methodName)
+                        .complexity(complexity)
+                        .threshold(10)
+                        .build();
                 violations.add(violation);
             }
             super.visitEnd();

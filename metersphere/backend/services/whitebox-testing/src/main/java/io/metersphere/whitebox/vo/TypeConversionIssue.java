@@ -1,11 +1,13 @@
 package io.metersphere.whitebox.vo;
 
 import lombok.Data;
+import lombok.Builder;
 
 /**
  * 类型转换问题
  */
 @Data
+@Builder
 public class TypeConversionIssue {
     private String issueType;
     private String className;

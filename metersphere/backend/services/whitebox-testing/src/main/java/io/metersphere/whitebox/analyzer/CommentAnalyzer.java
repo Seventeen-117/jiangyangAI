@@ -25,8 +25,9 @@ public class CommentAnalyzer {
     private static final Pattern JAVADOC_COMMENT_START = Pattern.compile("^\\s*/\\*\\*.*$");
     
     public CommentMetrics analyzeComments(String serviceName) {
-        CommentMetrics metrics = new CommentMetrics();
-        metrics.setServiceName(serviceName);
+        CommentMetrics metrics = CommentMetrics.builder()
+                .serviceName(serviceName)
+                .build();
         
         try {
             // 获取服务源代码路径

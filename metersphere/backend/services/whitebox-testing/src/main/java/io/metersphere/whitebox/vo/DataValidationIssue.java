@@ -1,11 +1,13 @@
 package io.metersphere.whitebox.vo;
 
 import lombok.Data;
+import lombok.Builder;
 
 /**
  * 数据验证问题
  */
 @Data
+@Builder
 public class DataValidationIssue {
     private String issueType;
     private String className;

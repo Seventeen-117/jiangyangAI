@@ -1,9 +1,13 @@
 package io.metersphere.whitebox.vo;
 
-import lombok.Data; /**
+import lombok.Data;
+import lombok.Builder;
+
+ /**
  * 服务通信问题
  */
 @Data
+@Builder
 public class ServiceCommunicationIssue {
     private String issueType;
     private String className;

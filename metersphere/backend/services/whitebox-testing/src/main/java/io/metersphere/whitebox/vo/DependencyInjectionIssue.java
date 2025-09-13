@@ -1,9 +1,13 @@
 package io.metersphere.whitebox.vo;
 
-import lombok.Data; /**
+import lombok.Data;
+import lombok.Builder;
+
+ /**
  * 依赖注入问题
  */
 @Data
+@Builder
 public class DependencyInjectionIssue {
     private String issueType;
     private String className;

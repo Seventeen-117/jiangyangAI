@@ -58,51 +58,55 @@ public class DependencyInteractionAnalyzer {
         List<ExternalDependencyIssue> issues = new ArrayList<>();
         
         // 检测数据库调用未处理异常
-        ExternalDependencyIssue issue1 = new ExternalDependencyIssue();
-        issue1.setIssueType("DATABASE_CALL_EXCEPTION_UNHANDLED");
-        issue1.setClassName("OrderService");
-        issue1.setMethodName("createOrder");
-        issue1.setLineNumber(45);
-        issue1.setDescription("数据库调用异常未处理: 直接调用数据库操作，未捕获SQLException");
-        issue1.setSeverity("CRITICAL");
-        issue1.setSuggestion("添加异常处理: try-catch SQLException或使用@Transactional");
-        issue1.setDependencyType("Database");
+        ExternalDependencyIssue issue1 = ExternalDependencyIssue.builder()
+                .issueType("DATABASE_CALL_EXCEPTION_UNHANDLED")
+                .className("OrderService")
+                .methodName("createOrder")
+                .lineNumber(45)
+                .description("数据库调用异常未处理: 直接调用数据库操作，未捕获SQLException")
+                .severity("CRITICAL")
+                .suggestion("添加异常处理: try-catch SQLException或使用@Transactional")
+                .dependencyType("Database")
+                .build();
         issues.add(issue1);
         
         // 检测Redis调用未处理异常
-        ExternalDependencyIssue issue2 = new ExternalDependencyIssue();
-        issue2.setIssueType("REDIS_CALL_EXCEPTION_UNHANDLED");
-        issue2.setClassName("CacheService");
-        issue2.setMethodName("setCache");
-        issue2.setLineNumber(67);
-        issue2.setDescription("Redis调用异常未处理: 未捕获RedisConnectionException");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("添加异常处理: try-catch RedisConnectionException");
-        issue2.setDependencyType("Redis");
+        ExternalDependencyIssue issue2 = ExternalDependencyIssue.builder()
+                .issueType("REDIS_CALL_EXCEPTION_UNHANDLED")
+                .className("CacheService")
+                .methodName("setCache")
+                .lineNumber(67)
+                .description("Redis调用异常未处理: 未捕获RedisConnectionException")
+                .severity("HIGH")
+                .suggestion("添加异常处理: try-catch RedisConnectionException")
+                .dependencyType("Redis")
+                .build();
         issues.add(issue2);
         
         // 检测HTTP调用未处理异常
-        ExternalDependencyIssue issue3 = new ExternalDependencyIssue();
-        issue3.setIssueType("HTTP_CALL_EXCEPTION_UNHANDLED");
-        issue3.setClassName("PaymentService");
-        issue3.setMethodName("callPaymentGateway");
-        issue3.setLineNumber(89);
-        issue3.setDescription("HTTP调用异常未处理: 未捕获ConnectTimeoutException");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("添加异常处理: try-catch ConnectTimeoutException");
-        issue3.setDependencyType("HTTP");
+        ExternalDependencyIssue issue3 = ExternalDependencyIssue.builder()
+                .issueType("HTTP_CALL_EXCEPTION_UNHANDLED")
+                .className("PaymentService")
+                .methodName("callPaymentGateway")
+                .lineNumber(89)
+                .description("HTTP调用异常未处理: 未捕获ConnectTimeoutException")
+                .severity("HIGH")
+                .suggestion("添加异常处理: try-catch ConnectTimeoutException")
+                .dependencyType("HTTP")
+                .build();
         issues.add(issue3);
         
         // 检测服务调用未处理异常
-        ExternalDependencyIssue issue4 = new ExternalDependencyIssue();
-        issue4.setIssueType("SERVICE_CALL_EXCEPTION_UNHANDLED");
-        issue4.setClassName("OrderService");
-        issue4.setMethodName("deductInventory");
-        issue4.setLineNumber(123);
-        issue4.setDescription("服务调用异常未处理: 调用库存服务时未处理TimeoutException");
-        issue4.setSeverity("CRITICAL");
-        issue4.setSuggestion("添加异常处理: try-catch TimeoutException或使用熔断器");
-        issue4.setDependencyType("Service");
+        ExternalDependencyIssue issue4 = ExternalDependencyIssue.builder()
+                .issueType("SERVICE_CALL_EXCEPTION_UNHANDLED")
+                .className("OrderService")
+                .methodName("deductInventory")
+                .lineNumber(123)
+                .description("服务调用异常未处理: 调用库存服务时未处理TimeoutException")
+                .severity("CRITICAL")
+                .suggestion("添加异常处理: try-catch TimeoutException或使用熔断器")
+                .dependencyType("Service")
+                .build();
         issues.add(issue4);
         
         result.setExternalDependencyIssues(issues);
@@ -114,52 +118,56 @@ public class DependencyInteractionAnalyzer {
     private void analyzeDistributedTransactionConsistency(String sourcePath, DependencyInteractionAnalysisResult result) {
         List<DistributedTransactionIssue> issues = new ArrayList<>();
         
-        // 检测跨服务操作事务不一致
-        DistributedTransactionIssue issue1 = new DistributedTransactionIssue();
-        issue1.setIssueType("CROSS_SERVICE_TRANSACTION_INCONSISTENCY");
-        issue1.setClassName("OrderService");
-        issue1.setMethodName("createOrderWithInventory");
-        issue1.setLineNumber(34);
-        issue1.setDescription("跨服务事务不一致: 扣库存成功但创建订单失败时，库存未回滚");
-        issue1.setSeverity("CRITICAL");
-        issue1.setSuggestion("使用分布式事务或补偿机制确保数据一致性");
-        issue1.setTransactionType("Cross-Service");
+        // 检测分布式事务处理错误
+        DistributedTransactionIssue issue1 = DistributedTransactionIssue.builder()
+                .issueType("DISTRIBUTED_TRANSACTION_ERROR")
+                .className("OrderService")
+                .methodName("createOrder")
+                .lineNumber(45)
+                .description("分布式事务处理错误: 未正确处理分布式事务回滚")
+                .severity("CRITICAL")
+                .suggestion("使用分布式事务框架: 如Seata或TCC模式")
+                .transactionType("Distributed")
+                .build();
         issues.add(issue1);
         
-        // 检测补偿逻辑错误
-        DistributedTransactionIssue issue2 = new DistributedTransactionIssue();
-        issue2.setIssueType("COMPENSATION_LOGIC_ERROR");
-        issue2.setClassName("OrderService");
-        issue2.setMethodName("rollbackOrder");
-        issue2.setLineNumber(56);
-        issue2.setDescription("补偿逻辑错误: 订单创建失败后未删除消息表记录，导致重复消费");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("完善补偿逻辑: 确保失败时清理所有相关数据");
-        issue2.setTransactionType("Compensation");
+        // 检测事务传播配置错误
+        DistributedTransactionIssue issue2 = DistributedTransactionIssue.builder()
+                .issueType("TRANSACTION_PROPAGATION_ERROR")
+                .className("PaymentService")
+                .methodName("processPayment")
+                .lineNumber(67)
+                .description("事务传播配置错误: 使用了错误的传播行为")
+                .severity("HIGH")
+                .suggestion("检查事务传播配置: 使用正确的@Propagation")
+                .transactionType("Propagation")
+                .build();
         issues.add(issue2);
         
-        // 检测重试逻辑错误
-        DistributedTransactionIssue issue3 = new DistributedTransactionIssue();
-        issue3.setIssueType("RETRY_LOGIC_ERROR");
-        issue3.setClassName("PaymentService");
-        issue3.setMethodName("retryPayment");
-        issue3.setLineNumber(78);
-        issue3.setDescription("重试逻辑错误: 重试次数过多导致重复扣减");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("添加幂等性检查: 确保重复操作不会产生副作用");
-        issue3.setTransactionType("Retry");
+        // 检测事务隔离级别不当
+        DistributedTransactionIssue issue3 = DistributedTransactionIssue.builder()
+                .issueType("TRANSACTION_ISOLATION_ERROR")
+                .className("InventoryService")
+                .methodName("updateStock")
+                .lineNumber(89)
+                .description("事务隔离级别不当: 未设置合适的隔离级别导致脏读")
+                .severity("HIGH")
+                .suggestion("设置合适的隔离级别: 使用@Isolation.READ_COMMITTED")
+                .transactionType("Isolation")
+                .build();
         issues.add(issue3);
         
         // 检测本地消息表处理错误
-        DistributedTransactionIssue issue4 = new DistributedTransactionIssue();
-        issue4.setIssueType("LOCAL_MESSAGE_TABLE_ERROR");
-        issue4.setClassName("MessageService");
-        issue4.setMethodName("processMessage");
-        issue4.setLineNumber(90);
-        issue4.setDescription("本地消息表处理错误: 消息处理失败后未正确标记状态");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("完善消息状态管理: 确保消息状态正确更新");
-        issue4.setTransactionType("Local-Message");
+        DistributedTransactionIssue issue4 = DistributedTransactionIssue.builder()
+                .issueType("LOCAL_MESSAGE_TABLE_ERROR")
+                .className("MessageService")
+                .methodName("processMessage")
+                .lineNumber(90)
+                .description("本地消息表处理错误: 消息处理失败后未正确标记状态")
+                .severity("MEDIUM")
+                .suggestion("完善消息状态管理: 确保消息状态正确更新")
+                .transactionType("Local-Message")
+                .build();
         issues.add(issue4);
         
         result.setDistributedTransactionIssues(issues);
@@ -172,51 +180,55 @@ public class DependencyInteractionAnalyzer {
         List<DependencyInjectionIssue> issues = new ArrayList<>();
         
         // 检测依赖注入失败
-        DependencyInjectionIssue issue1 = new DependencyInjectionIssue();
-        issue1.setIssueType("DEPENDENCY_INJECTION_FAILED");
-        issue1.setClassName("UserService");
-        issue1.setMethodName("getLogger");
-        issue1.setLineNumber(23);
-        issue1.setDescription("依赖注入失败: logger始终为null，@Autowired注解被误写成@Resource");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("检查注解配置: 确保@Autowired注解正确");
-        issue1.setInjectionType("@Autowired");
+        DependencyInjectionIssue issue1 = DependencyInjectionIssue.builder()
+                .issueType("DEPENDENCY_INJECTION_FAILED")
+                .className("UserService")
+                .methodName("getLogger")
+                .lineNumber(23)
+                .description("依赖注入失败: logger始终为null，@Autowired注解被误写成@Resource")
+                .severity("HIGH")
+                .suggestion("检查注解配置: 确保@Autowired注解正确")
+                .injectionType("@Autowired")
+                .build();
         issues.add(issue1);
         
         // 检测循环依赖
-        DependencyInjectionIssue issue2 = new DependencyInjectionIssue();
-        issue2.setIssueType("CIRCULAR_DEPENDENCY");
-        issue2.setClassName("OrderService");
-        issue2.setMethodName("init");
-        issue2.setLineNumber(1);
-        issue2.setDescription("循环依赖: OrderService依赖UserService，UserService依赖OrderService");
-        issue2.setSeverity("CRITICAL");
-        issue2.setSuggestion("重构依赖关系: 使用@Lazy注解或提取公共接口");
-        issue2.setInjectionType("Circular");
+        DependencyInjectionIssue issue2 = DependencyInjectionIssue.builder()
+                .issueType("CIRCULAR_DEPENDENCY")
+                .className("OrderService")
+                .methodName("init")
+                .lineNumber(1)
+                .description("循环依赖: OrderService依赖UserService，UserService依赖OrderService")
+                .severity("CRITICAL")
+                .suggestion("重构依赖关系: 使用@Lazy注解或提取公共接口")
+                .injectionType("Circular")
+                .build();
         issues.add(issue2);
         
         // 检测注入类型错误
-        DependencyInjectionIssue issue3 = new DependencyInjectionIssue();
-        issue3.setIssueType("INJECTION_TYPE_MISMATCH");
-        issue3.setClassName("PaymentService");
-        issue3.setMethodName("getPaymentProcessor");
-        issue3.setLineNumber(45);
-        issue3.setDescription("注入类型不匹配: 注入了接口的错误实现类");
-        issue3.setSeverity("HIGH");
-        issue3.setSuggestion("检查实现类配置: 确保注入正确的实现类");
-        issue3.setInjectionType("@Qualifier");
+        DependencyInjectionIssue issue3 = DependencyInjectionIssue.builder()
+                .issueType("INJECTION_TYPE_MISMATCH")
+                .className("PaymentService")
+                .methodName("getPaymentProcessor")
+                .lineNumber(45)
+                .description("注入类型不匹配: 注入了接口的错误实现类")
+                .severity("HIGH")
+                .suggestion("检查实现类配置: 确保注入正确的实现类")
+                .injectionType("@Qualifier")
+                .build();
         issues.add(issue3);
         
         // 检测作用域配置错误
-        DependencyInjectionIssue issue4 = new DependencyInjectionIssue();
-        issue4.setIssueType("SCOPE_CONFIGURATION_ERROR");
-        issue4.setClassName("SessionService");
-        issue4.setMethodName("getSession");
-        issue4.setLineNumber(67);
-        issue4.setDescription("作用域配置错误: 单例Bean中注入了原型Bean");
-        issue4.setSeverity("MEDIUM");
-        issue4.setSuggestion("检查作用域配置: 使用@Scope(\"prototype\")或@Lookup");
-        issue4.setInjectionType("@Scope");
+        DependencyInjectionIssue issue4 = DependencyInjectionIssue.builder()
+                .issueType("SCOPE_CONFIGURATION_ERROR")
+                .className("SessionService")
+                .methodName("getSession")
+                .lineNumber(67)
+                .description("作用域配置错误: 单例Bean中注入了原型Bean")
+                .severity("MEDIUM")
+                .suggestion("检查作用域配置: 使用@Scope(\"prototype\")或@Lookup")
+                .injectionType("@Scope")
+                .build();
         issues.add(issue4);
         
         result.setDependencyInjectionIssues(issues);
@@ -229,51 +241,55 @@ public class DependencyInteractionAnalyzer {
         List<ServiceCommunicationIssue> issues = new ArrayList<>();
         
         // 检测服务调用超时
-        ServiceCommunicationIssue issue1 = new ServiceCommunicationIssue();
-        issue1.setIssueType("SERVICE_CALL_TIMEOUT");
-        issue1.setClassName("OrderService");
-        issue1.setMethodName("callInventoryService");
-        issue1.setLineNumber(89);
-        issue1.setDescription("服务调用超时: 未设置超时时间，可能导致长时间等待");
-        issue1.setSeverity("HIGH");
-        issue1.setSuggestion("设置合理的超时时间: 使用@HystrixCommand或配置超时");
-        issue1.setCommunicationType("HTTP");
+        ServiceCommunicationIssue issue1 = ServiceCommunicationIssue.builder()
+                .issueType("SERVICE_CALL_TIMEOUT")
+                .className("OrderService")
+                .methodName("callInventoryService")
+                .lineNumber(89)
+                .description("服务调用超时: 未设置超时时间，可能导致长时间等待")
+                .severity("HIGH")
+                .suggestion("设置合理的超时时间: 使用@HystrixCommand或配置超时")
+                .communicationType("HTTP")
+                .build();
         issues.add(issue1);
         
         // 检测服务降级缺失
-        ServiceCommunicationIssue issue2 = new ServiceCommunicationIssue();
-        issue2.setIssueType("SERVICE_FALLBACK_MISSING");
-        issue2.setClassName("PaymentService");
-        issue2.setMethodName("processPayment");
-        issue2.setLineNumber(123);
-        issue2.setDescription("服务降级缺失: 支付服务不可用时无降级策略");
-        issue2.setSeverity("HIGH");
-        issue2.setSuggestion("添加降级策略: 使用@HystrixCommand的fallbackMethod");
-        issue2.setCommunicationType("RPC");
+        ServiceCommunicationIssue issue2 = ServiceCommunicationIssue.builder()
+                .issueType("SERVICE_FALLBACK_MISSING")
+                .className("PaymentService")
+                .methodName("processPayment")
+                .lineNumber(123)
+                .description("服务降级缺失: 支付服务不可用时无降级策略")
+                .severity("HIGH")
+                .suggestion("添加降级策略: 使用@HystrixCommand的fallbackMethod")
+                .communicationType("RPC")
+                .build();
         issues.add(issue2);
         
         // 检测负载均衡配置错误
-        ServiceCommunicationIssue issue3 = new ServiceCommunicationIssue();
-        issue3.setIssueType("LOAD_BALANCING_ERROR");
-        issue3.setClassName("UserService");
-        issue3.setMethodName("getUserInfo");
-        issue3.setLineNumber(45);
-        issue3.setDescription("负载均衡配置错误: 所有请求都路由到同一个实例");
-        issue3.setSeverity("MEDIUM");
-        issue3.setSuggestion("检查负载均衡配置: 确保请求正确分发");
-        issue3.setCommunicationType("Load-Balancing");
+        ServiceCommunicationIssue issue3 = ServiceCommunicationIssue.builder()
+                .issueType("LOAD_BALANCING_ERROR")
+                .className("UserService")
+                .methodName("getUserInfo")
+                .lineNumber(45)
+                .description("负载均衡配置错误: 所有请求都路由到同一个实例")
+                .severity("MEDIUM")
+                .suggestion("检查负载均衡配置: 确保请求正确分发")
+                .communicationType("Load-Balancing")
+                .build();
         issues.add(issue3);
         
         // 检测服务发现失败
-        ServiceCommunicationIssue issue4 = new ServiceCommunicationIssue();
-        issue4.setIssueType("SERVICE_DISCOVERY_FAILURE");
-        issue4.setClassName("NotificationService");
-        issue4.setMethodName("sendNotification");
-        issue4.setLineNumber(67);
-        issue4.setDescription("服务发现失败: 无法找到目标服务实例");
-        issue4.setSeverity("HIGH");
-        issue4.setSuggestion("检查服务注册: 确保服务正确注册到注册中心");
-        issue4.setCommunicationType("Service-Discovery");
+        ServiceCommunicationIssue issue4 = ServiceCommunicationIssue.builder()
+                .issueType("SERVICE_DISCOVERY_FAILURE")
+                .className("NotificationService")
+                .methodName("sendNotification")
+                .lineNumber(67)
+                .description("服务发现失败: 无法找到目标服务实例")
+                .severity("HIGH")
+                .suggestion("检查服务注册: 确保服务正确注册到注册中心")
+                .communicationType("Service-Discovery")
+                .build();
         issues.add(issue4);
         
         result.setServiceCommunicationIssues(issues);

@@ -1,9 +1,13 @@
 package io.metersphere.whitebox.vo;
 
-import lombok.Data; /**
+import lombok.Data;
+import lombok.Builder;
+
+/**
  * 数组越界问题
  */
 @Data
+@Builder
 public class ArrayBoundsIssue {
     private String issueType;
     private String className;

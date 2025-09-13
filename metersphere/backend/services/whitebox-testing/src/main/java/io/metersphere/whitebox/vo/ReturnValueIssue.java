@@ -1,9 +1,13 @@
 package io.metersphere.whitebox.vo;
 
-import lombok.Data; /**
+import lombok.Data;
+import lombok.Builder;
+
+ /**
  * 返回值处理问题
  */
 @Data
+@Builder
 public class ReturnValueIssue {
     private String issueType;
     private String className;

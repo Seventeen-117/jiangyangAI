@@ -1,11 +1,13 @@
 package io.metersphere.whitebox.vo;
 
 import lombok.Data;
+import lombok.Builder;
 
 /**
  * 分支逻辑问题
  */
 @Data
+@Builder
 public class BranchLogicIssue {
     private String issueType;
     private String className;
